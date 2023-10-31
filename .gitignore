@@ -1,0 +1,4 @@
+*build*
+*dist*
+*.ipynb_checkpoints*
+*getObsAtmo.egg-info*

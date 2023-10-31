@@ -354,7 +354,7 @@ class ObsAtmoGrid:
         return transm
         
         
-    def GetAllTransparencies(self,wl,am,pwv,oz, tau=0, beta=-1, flagRayleigh=True,flagO2abs=True,flagPWVabs=True,flagOZabs=True,flagAerosols=False):
+    def GetAllTransparencies(self,wl,am,pwv,oz, tau=0, beta=-1, flagRayleigh=True,flagO2abs=True,flagPWVabs=True,flagOZabs=True,flagAerosols=True):
         """
         Combine interpolated libradtran transmission with analytical expression for the
         aerosols
@@ -490,6 +490,41 @@ class ObsAtmo(ObsAtmoPressure):
 
         """
         self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
+
+    def plot_transmission(self,am=1.0,pwv=4.0,oz=400.,tau=0.1,beta=-1.2 ,xscale="linear", yscale="linear"):
+        """Plot ObsAtmo transmission
+
+        Examples
+        --------
+        >>> e = ObsAtmo(obs_str = "LSST", pressure = 0)
+        >>> e.plot_transmission()
+
+        """
+        wls = self.WL
+        transm = self.GetAllTransparencies(wls,am,pwv,oz,tau,beta)
+
+        textstr = '\n'.join((
+        f'airmass = {am:.1f}',
+        f'pwv = {pwv:.1f} mm',
+        f'ozone = {oz:.0f} DU',
+        f' $\\tau$ = {tau:.3f}',
+        f'$\\beta$ = {beta:.1f}'
+        ))
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+        fig,ax = plt.subplots()
+        
+        ax.plot(wls, transm, "b-")
+        ax.grid()
+        ax.set_yscale(yscale)
+        ax.set_xscale(xscale)
+        ax.set_title("atmospheric transmission")
+        ax.set_xlabel("$\lambda$ (nm)")
+        ax.set_ylabel("transmission")
+        # place a text box in upper left in axes coords
+        ax.text(0.75, 0.05, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='bottom', bbox=props)
+        plt.show()
 
 
 

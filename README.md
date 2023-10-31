@@ -10,12 +10,16 @@ In addition to libradtran profiles, a analytic scattering profile aerosol for a 
 
 Example:
 ```
-from getObsAtmo.getObsAtmo import *
+from getObsAtmo.getObsAtmo import ObsAtmo
 
-test = is_calspec("eta1 dor")
-c = Calspec("eta1 dor")
-c.get_spectrum_fits_filename()  # download the fits file
-c.get_spectrum_table()  # download and return an Astropy table
-c.get_spectrum_numpy()  # download and return a dictionnary of numpy arrays with units
-c.plot_spectrum()  # download and plot the spectrum
+emul = ObsAtmo(obs_str = "LSST", pressure = 743.0)
+wl = [400.,800.,900.]
+am=1.2
+pwv =4.0
+oz=300.
+transm = emul.GetAllTransparencies(wl,am,pwv,oz) # get transmission
+print("wavelengths (nm) \t = ",wl)
+print("transmissions    \t = ",transm)
+
+emul.plot_transmission()  # plot the transmission
 ```
