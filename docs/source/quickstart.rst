@@ -10,7 +10,11 @@ the wavelength, the airmass, the pressure and the atmospheric content in precipi
 Whereas for aerosols scattering, a single component is assumed using an analytic formula, the other processes
 are extracted from [libradtran](http://www.libradtran.org) simulations.
 
-Transmission pattern for 5 observation sites are proposed: ``LSST``, ``
+Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
+``OHP`` (observatoire de Haute Provence, Fr),``PDM`` (observatoire du Pic du Midi, Fr),
+``OMK`` (Mauna Kea Observatory),
+``OSL`` (at sea level).
+
 
 
 ============= ======== ========== =========== ========= =========== ========= 
@@ -20,19 +24,19 @@ Transmission pattern for 5 observation sites are proposed: ``LSST``, ``
  altitude-km   2.663    2.207       0.650      2.891      4.205         0.0 
 ============= ======== ========== =========== ========= =========== =========
 
-If you don't find your observation site, choose the one wiht the closest altitude 
+If you don't find your observation site, choose the one with the closest altitude 
 and provides the ground true pressure.
-The transmissions will be pressure corrected for your grond pressure.         
+The transmissions will be pressure corrected for the corresponding ground pressure.         
 
 Installation
 ------------
 
-      ``
-      git clone git@github.com:LSSTDESC/getObsAtmo.git
-      cd getObsAtmo
-      python setup.py install
-      ``
+.. code-block:: bash
 
+   git clone git@github.com:LSSTDESC/getObsAtmo.git
+   cd getObsAtmo
+   python setup.py install
+   
 
 
 About libradtran
@@ -50,7 +54,7 @@ processes photon-air which are calculated by libradtran (version 2.0.5 for this 
 Details
 -------
 
-The architecture of the ``getObsAtmo`` module relies on the implementetation of 3 classes
+The architecture of the ``getObsAtmo`` module relies on the implementation of 3 classes
 with inheritage relationship.
 The base class ``ObsAtmoGrid`` implements datafile IO and multi-dimentional interpolation
 of transparencies to a 
