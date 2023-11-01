@@ -11,20 +11,11 @@ Welcome to getObsAtmo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart
+   apidocs
 
-.. automodule:: getObsAtmo
-    :members:
 
 
-.. autoclass:: getObsAtmo.ObsAtmo
-    :members:
-    :no-index:
-
-.. autoclass:: getObsAtmo.ObsAtmoPressure
-    :members:
-  
-.. autoclass:: getObsAtmo.ObsAtmoGrid
-    :members:
 
 
 
