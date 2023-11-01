@@ -23,7 +23,7 @@ setup(
     name='getObsAtmo',
     version=current_version,
     packages=['getObsAtmo'],
-    install_requires=['numpy', 'matplotlib', 'scipy'],
+    install_requires=['numpy', 'matplotlib','seaborn' ,'scipy'],
     test_suite='nose.collector',
     tests_require=['nose'],
     package_dir={'getObsAtmo': './getObsAtmo'},

@@ -40,13 +40,6 @@ file_data_dict = {
     "data_ozabs" : "atmospherictransparencygrid_OZabs.npy",
 }
 
-def getObsSiteDataFrame():  
-    df = pd.DataFrame(columns=['altitude','pressure'], index=list(Dict_Of_sitesAltitudes.keys()))
-    for key in Dict_Of_sitesAltitudes.keys():
-        df.loc[key] = pd.Series({'altitude':Dict_Of_sitesAltitudes[key],'pressure':Dict_Of_sitesPressures[key]})
-    return df
-
-
 def _getPackageDir():
     """This method must live in the top level of this package, so if this
     moves to a utils file then the returned path will need to account for that.
@@ -55,20 +48,40 @@ def _getPackageDir():
     return dirname
 
 
+def getObsSiteDataFrame():
+    """
+
+    Provide the list of observatories which have transmission grids
+
+    Example
+    -----
+
+    >>> print(getObsSiteDataFrame())
+         altitude   pressure
+    LSST    2.663  731.50433
+    CTIO    2.207   774.6052
+    OHP      0.65  937.22595
+    PDM    2.8905  710.90637
+    OMK     4.205  600.17224
+    OSL       0.0     1013.0
+    """  
+    df = pd.DataFrame(columns=['altitude','pressure'], index=list(Dict_Of_sitesAltitudes.keys()))
+    for key in Dict_Of_sitesAltitudes.keys():
+        df.loc[key] = pd.Series({'altitude':Dict_Of_sitesAltitudes[key],'pressure':Dict_Of_sitesPressures[key]})
+    return df
+
+
+
+
 def sanitizeString(label):
-    """This method sanitizes the star label."""
+    """This method sanitizes the site label."""
     return label.upper().replace(' ','')
 
 
-def sanitizeDataFrame(df):
-    """This method sanitizes the star label."""
-    tmp_df = df.str.upper()
-    tmp_df = tmp_df.str.replace(' ', '')
-    return tmp_df
 
 
 def get_obssite_keys(obs_label):
-    """Return the DataFrame keys if a star name corresponds to a Calspec entry
+    """Return the DataFrame keys if an observation site name corresponds to a an entry
     in the tables.
 
     Parameters
@@ -84,8 +97,8 @@ def get_obssite_keys(obs_label):
     Examples
     --------
     >>> get_obssite_keys("lsst")   #doctest: +ELLIPSIS
+    1      True
     0      False
-    1      False
     ...
     """
     label = sanitizeString(obs_label)
@@ -93,9 +106,8 @@ def get_obssite_keys(obs_label):
     name_index = [name.upper()  for name in df.index]
     if len(name_index) > 0:
         keys = pd.Series([False] * len(df))
-        for name in name_index:
-            tmp_df = sanitizeDataFrame(df[name])
-            keys = keys | (tmp_df == label)
+        for idx,name in enumerate(name_index):
+            keys[idx] =  (name == label)
         return keys
     else:
         raise KeyError("No observation site label {obs_label} in config dictionaries")
@@ -465,6 +477,29 @@ class ObsAtmo(ObsAtmoPressure):
     ObsAtmo is the user end-point which call the official implementation of the emulator.
     
     By now ``ObsAtmo`` refer to the ``ObsAtmoPressure`` which itself rely on the ``ObsAtmoGrid``.
+
+    Usage
+    -----
+    >>>  emul =  ObsAtmo()
+    Observatory LSST found in preselected observation sites
+
+    >>> emul =  ObsAtmo('CTIO')
+    Observatory CTIO found in preselected observation sites
+
+    >>>  emul =  ObsAtmo('LSST',743.0)
+    Observatory LSST found in preselected observation sites
+
+
+    >>> wl = [400.,800.,900.]
+    >>> am=1.2
+    >>> pwv =4.0
+    >>> oz=300.
+    >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
+    >>> print(wl)
+    [400.0, 800.0, 900.0]
+    >>> print(transm)
+    [0.72485491 0.97330618 0.85675228]
+
     """
     def __init__(self,obs_str = "LSST", pressure = 0 ) : 
         ObsAtmoPressure.__init__(self,obs_str = obs_str, pressure = pressure )
