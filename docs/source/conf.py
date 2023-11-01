@@ -32,9 +32,10 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [ 'sphinx.ext.autodoc',
-              'sphinx.ext.duration',
+               'sphinx.ext.duration',
                'sphinx.ext.doctest',
                'sphinx.ext.intersphinx',
+               'sphinx.ext.autosummary',
                'sphinx.ext.mathjax', 
                'sphinx.ext.napoleon', 
                'sphinx.ext.viewcode',
@@ -45,12 +46,13 @@ extensions = [ 'sphinx.ext.autodoc',
                'sphinx.ext.inheritance_diagram',
                ]
 
+
+
 nbsphinx_execute = 'never'
 nbsphinx_allow_errors = True
 source_suffix = ['.rst']
 
-#extensions.append("autoapi.extension")
-#extensions.append("nbsphinx")
+
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
