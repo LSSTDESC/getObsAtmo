@@ -25,13 +25,24 @@ Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
  altitude-km   2.663    2.207       0.650      2.891      4.205         0.0 
 ============= ======== ========== =========== ========= =========== =========
 
-If you don't find your observation site, choose the one with the closest altitude 
-and provides the ground true pressure.
+The altitude-pressure dependence is shown on the figure below:
+
+.. figure:: images/libradtranpy_altitudevspressure.png
+
+
+If you don't find your observation site, choose the site having the closest altitude 
+and provides the effective ground pressure.
+
 The transmissions will be pressure corrected for the corresponding ground pressure.         
+
+
 
 
 illustration
 ------------
+
+The following figure shows the atmospheric air transparency profiles provided by ``getObsAtmo``.
+
 
 .. figure:: images/getObsAtmo.png
 
