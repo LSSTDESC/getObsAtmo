@@ -279,27 +279,32 @@ class ObsAtmoGrid:
     # functions to access to interpolated transparency functions on training dataset
     #        
     def GetWL(self):
+        """ Return wavelength array used by the grid """
         return self.WL
     
     def GetRayleighTransparencyArray(self,wl,am):
+        """ Return Rayleigh transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_rayleigh(pts)
     
     
     def GetO2absTransparencyArray(self,wl,am):
+        """ Return O2 transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_O2abs(pts)
     
     
     def GetPWVabsTransparencyArray(self,wl,am,pwv):
+        """ Return PWV transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am,pwv) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_PWVabs(pts)
     
     
     def GetOZabsTransparencyArray(self,wl,am,oz):
+        """ Return Ozone transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am,oz) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_OZabs(pts)

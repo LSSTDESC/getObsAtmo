@@ -11,9 +11,6 @@ Welcome to getObsAtmo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   ../../notebooks/test_ObsAtmoEmulator
-   ../notebooks/test_ObsAtmoEmulator
-
 
    quickstart
 
