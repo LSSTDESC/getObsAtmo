@@ -13,9 +13,15 @@
 import os
 import sys
 import pathlib
-#sys.path.insert(0, os.path.abspath('../../getObsAtmo/getObsAtmo'))
-sys.path.insert(0,'/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/getObsAtmo/')
-sys.path.append('/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/docs/notebooks')
+sys.path.insert(0, os.path.abspath('../../getObsAtmo'))
+#sys.path.insert(0, os.path.abspath('../../'))
+#sys.path.insert(0,'/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/getObsAtmo/')
+#sys.path.insert(0, os.path.abspath("."))
+#sys.path.insert(0, os.path.abspath("../"))
+#sys.path.insert(0, os.path.abspath("../../getObsAtmo"))
+#sys.path.insert(1, os.path.dirname(os.path.abspath("../")) + os.sep + "feature_engine")
+
+#sys.path.append('/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/docs/notebooks')
 #sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
 
