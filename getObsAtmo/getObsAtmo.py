@@ -56,14 +56,15 @@ def getObsSiteDataFrame():
     Example
     -----
 
-    >>> print(getObsSiteDataFrame())
-         altitude   pressure
-    LSST    2.663  731.50433
-    CTIO    2.207   774.6052
-    OHP      0.65  937.22595
-    PDM    2.8905  710.90637
-    OMK     4.205  600.17224
-    OSL       0.0     1013.0
+    .. doctest::
+        >>> print(getObsSiteDataFrame())
+               altitude   pressure
+        LSST    2.663  731.50433
+        CTIO    2.207   774.6052
+        OHP      0.65  937.22595
+        PDM    2.8905  710.90637
+        OMK     4.205  600.17224
+        OSL       0.0     1013.0
     """  
     df = pd.DataFrame(columns=['altitude','pressure'], index=list(Dict_Of_sitesAltitudes.keys()))
     for key in Dict_Of_sitesAltitudes.keys():
@@ -96,10 +97,11 @@ def get_obssite_keys(obs_label):
 
     Examples
     --------
-    >>> get_obssite_keys("lsst")   #doctest: +ELLIPSIS
-    1      True
-    0      False
-    ...
+    .. doctest::
+        >>> get_obssite_keys("lsst")   #doctest: +ELLIPSIS
+        1      True
+        0      False
+        ...
     """
     label = sanitizeString(obs_label)
     df = getObsSiteDataFrame()
@@ -239,7 +241,9 @@ class ObsAtmoGrid:
         
     def loadtables(self):
         """
-        Load files into grid arrays
+        Load files into grid arrays that will be used for interpolation functions.
+        Load the config files (the pickle) and the data files (npy) for each of the observatory site
+
         """
         
         filename=os.path.join(self.path,self.fn_info)     
@@ -275,27 +279,32 @@ class ObsAtmoGrid:
     # functions to access to interpolated transparency functions on training dataset
     #        
     def GetWL(self):
+        """ Return wavelength array used by the grid """
         return self.WL
     
     def GetRayleighTransparencyArray(self,wl,am):
+        """ Return Rayleigh transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_rayleigh(pts)
     
     
     def GetO2absTransparencyArray(self,wl,am):
+        """ Return O2 transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_O2abs(pts)
     
     
     def GetPWVabsTransparencyArray(self,wl,am,pwv):
+        """ Return PWV transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am,pwv) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_PWVabs(pts)
     
     
     def GetOZabsTransparencyArray(self,wl,am,oz):
+        """ Return Ozone transmission for the corresponding wavelength array at the airmass"""
         pts = [ (the_wl,am,oz) for the_wl in wl ]
         pts = np.array(pts)
         return self.func_OZabs(pts)
@@ -398,8 +407,6 @@ class ObsAtmoGrid:
 
 
 
-
-
 class ObsAtmoPressure(ObsAtmoGrid):
     """
     Emulate Atmospheric Transparency above LSST from a data grids
@@ -440,9 +447,10 @@ class ObsAtmoPressure(ObsAtmoGrid):
         self.pressureratio = self.pressure/self.refpressure
         if pressure == 0.0:
             self.pressureratio = 1
+            self.pressure = self.refpressure
 
 
-        self.Name = f"Atmospheric emulator ObsAtmoPressure for observation site {obs_str}"
+        self.Name = f"Atmospheric emulator ObsAtmoPressure for observation site {obs_str} P = {self.pressure} hPa"
 
     def GetRayleighTransparencyArray(self,wl,am):
         """
@@ -480,26 +488,27 @@ class ObsAtmo(ObsAtmoPressure):
 
     Usage
     -----
-    >>>  emul =  ObsAtmo()
-    Observatory LSST found in preselected observation sites
 
-    >>> emul =  ObsAtmo('CTIO')
-    Observatory CTIO found in preselected observation sites
+    .. doctest::
+        >>>  emul =  ObsAtmo()
+        Observatory LSST found in preselected observation sites
 
-    >>>  emul =  ObsAtmo('LSST',743.0)
-    Observatory LSST found in preselected observation sites
+        >>> emul =  ObsAtmo('CTIO')
+        Observatory CTIO found in preselected observation sites
+
+        >>>  emul =  ObsAtmo('LSST',743.0)
+        Observatory LSST found in preselected observation sites
 
 
-    >>> wl = [400.,800.,900.]
-    >>> am=1.2
-    >>> pwv =4.0
-    >>> oz=300.
-    >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
-    >>> print(wl)
-    [400.0, 800.0, 900.0]
-    >>> print(transm)
-    [0.72485491 0.97330618 0.85675228]
-
+        >>> wl = [400.,800.,900.]
+        >>> am=1.2
+        >>> pwv =4.0
+        >>> oz=300.
+        >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
+        >>> print(wl)
+        [400.0, 800.0, 900.0]
+        >>> print(transm)
+        [0.72485491 0.97330618 0.85675228]
     """
     def __init__(self,obs_str = "LSST", pressure = 0 ) : 
         ObsAtmoPressure.__init__(self,obs_str = obs_str, pressure = pressure )
@@ -519,8 +528,10 @@ class ObsAtmo(ObsAtmoPressure):
         
         Examples
         --------
-        >>> e = ObsAtmo(obs_str = "LSST", pressure = 0)
-        >>> print(c)   #doctest: +ELLIPSIS
+
+        .. doctest::
+            >>> e = ObsAtmo(obs_str = "LSST", pressure = 0)
+            >>> print(c)   #doctest: +ELLIPSIS
 
 
         """
@@ -553,7 +564,7 @@ class ObsAtmo(ObsAtmoPressure):
         ax.grid()
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
-        ax.set_title("atmospheric transmission")
+        ax.set_title(f"atmospheric transmission at {self.OBS} with P = {self.pressure:.1f} hPa")
         ax.set_xlabel("$\lambda$ (nm)")
         ax.set_ylabel("transmission")
         # place a text box in upper left in axes coords
