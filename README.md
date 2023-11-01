@@ -1,5 +1,5 @@
 # getObsAtmo
-============
+
 Python package to emulate atmospheric transparency simulation for different observation sites.
 
 Transmission profiles depending on wavelength and airmass for Rayleigh scattering and atmospheric components absorption like Oxygen,
@@ -9,7 +9,7 @@ In addition to libradtran interpolated gridded profiles, an analytic expression 
 
 
 # Download
-==========
+
 
 ```bash
 git clone https://github.com/LSSTDESC/getObsAtmo.git
@@ -17,7 +17,7 @@ git clone https://github.com/LSSTDESC/getObsAtmo.git
 
 
 # Installation
-===========
+
 
 ``` bash
 cd getObsAtmo
@@ -26,13 +26,15 @@ python setup.py install
 
 
 # tests
-=======
+
 
 ```bash
 python -m unittest
 ```
 
-Example:
+# Example
+
+
 ```python
 
 from getObsAtmo.getObsAtmo import ObsAtmo
