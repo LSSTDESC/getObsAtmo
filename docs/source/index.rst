@@ -12,10 +12,12 @@ Welcome to getObsAtmo's documentation!
    :caption: Contents:
 
 
+   introduction
+
    quickstart
 
    notebooks
-
+   
    apidocs
 
 
