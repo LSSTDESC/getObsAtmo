@@ -22,9 +22,6 @@ Welcome to getObsAtmo's documentation!
 
 
 
-
-
-
 Indices and tables
 ==================
 

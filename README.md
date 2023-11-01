@@ -51,5 +51,9 @@ print("transmissions    \t = ",transm)
 emul.plot_transmission()  # plot the transmission
 ```
 
+# Documentation
+
+The detailed documentation can be used in https://getobsatmo.readthedocs.io/en/latest/index.html
+
 
 

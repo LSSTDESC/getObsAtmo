@@ -17,7 +17,7 @@ About libradtran
 ----------------
 
 Libradtran is an atmospheric transmission full simulation package which can be downloaded
-from the [web site] http://www.libradtran.org/.
+from the web site http://www.libradtran.org/.
 
 .. figure:: images/libradtran.png
 
@@ -53,7 +53,7 @@ of transparencies.
    .. tab:: ``Class ObsAtmoGrid``
 
       This is the base class which implement the interpolation of atmospheric transmissions from a series
-      of dataset extracted from [libradtran](http://www.libradtran.org/).
+      of dataset extracted from libradtran (http://www.libradtran.org/).
  
 
 Usage
