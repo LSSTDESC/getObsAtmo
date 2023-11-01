@@ -4,4 +4,6 @@ seaborn
 scipy
 sphinx
 sphinx-rtd-theme
+sphinx-tabs
+numpydoc
 

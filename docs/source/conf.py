@@ -15,6 +15,7 @@ import sys
 import pathlib
 #sys.path.insert(0, os.path.abspath('../../getObsAtmo/getObsAtmo'))
 sys.path.insert(0,'/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/getObsAtmo/')
+sys.path.append('/Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/docs/notebooks')
 #sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
 
@@ -38,10 +39,18 @@ extensions = [ 'sphinx.ext.autodoc',
                'sphinx.ext.napoleon', 
                'sphinx.ext.viewcode',
                'sphinx_tabs.tabs',
-               'numpydoc']
+               'numpydoc',
+               'nbsphinx',
+               'sphinx.ext.graphviz',
+               'sphinx.ext.inheritance_diagram',
+               ]
+
+nbsphinx_execute = 'never'
+nbsphinx_allow_errors = True
+source_suffix = ['.rst']
 
 #extensions.append("autoapi.extension")
-extensions.append("nbsphinx")
+#extensions.append("nbsphinx")
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

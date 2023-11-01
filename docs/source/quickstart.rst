@@ -11,7 +11,8 @@ Whereas for aerosols scattering, a single component is assumed using an analytic
 are extracted from [libradtran](http://www.libradtran.org) simulations.
 
 Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
-``OHP`` (observatoire de Haute Provence, Fr),``PDM`` (observatoire du Pic du Midi, Fr),
+``OHP`` (observatoire de Haute Provence, Fr),
+``PDM`` (observatoire du Pic du Midi, Fr),
 ``OMK`` (Mauna Kea Observatory),
 ``OSL`` (at sea level).
 
@@ -57,7 +58,11 @@ Details
 The architecture of the ``getObsAtmo`` module relies on the implementation of 3 classes
 with inheritage relationship.
 The base class ``ObsAtmoGrid`` implements datafile IO and multi-dimentional interpolation
-of transparencies to a 
+of transparencies.
+
+
+.. inheritance-diagram:: getObsAtmo
+   :top-classes: getObsAtmo.getObsAtmo.ObsAtmoGrid, getObsAtmo.getObsAtmo.ObsAtmoPressure, getObsAtmo.getObsAtmo.ObsAtmo
 
 .. tabs::
 
@@ -98,4 +103,10 @@ These are detailed in :doc:`apidocs`.
    >>> pwv =4.0  # set the precipitable water vapor in mm
    >>> oz=300. # set the ozone depth on DU
    >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
+
+
+Better example
+--------------
+
+.. _link: /Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/docs/notebooks/intro_notebook.ipynb
 

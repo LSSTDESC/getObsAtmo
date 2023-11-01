@@ -241,7 +241,9 @@ class ObsAtmoGrid:
         
     def loadtables(self):
         """
-        Load files into grid arrays
+        Load files into grid arrays that will be used for interpolation functions.
+        Load the config files (the pickle) and the data files (npy) for each of the observatory site
+
         """
         
         filename=os.path.join(self.path,self.fn_info)     
@@ -440,9 +442,10 @@ class ObsAtmoPressure(ObsAtmoGrid):
         self.pressureratio = self.pressure/self.refpressure
         if pressure == 0.0:
             self.pressureratio = 1
+            self.pressure = self.refpressure
 
 
-        self.Name = f"Atmospheric emulator ObsAtmoPressure for observation site {obs_str}"
+        self.Name = f"Atmospheric emulator ObsAtmoPressure for observation site {obs_str} P = {self.pressure} hPa"
 
     def GetRayleighTransparencyArray(self,wl,am):
         """
@@ -556,7 +559,7 @@ class ObsAtmo(ObsAtmoPressure):
         ax.grid()
         ax.set_yscale(yscale)
         ax.set_xscale(xscale)
-        ax.set_title("atmospheric transmission")
+        ax.set_title(f"atmospheric transmission at {self.OBS} with P = {self.pressure:.1f} hPa")
         ax.set_xlabel("$\lambda$ (nm)")
         ax.set_ylabel("transmission")
         # place a text box in upper left in axes coords
