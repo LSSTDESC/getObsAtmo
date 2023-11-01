@@ -56,14 +56,15 @@ def getObsSiteDataFrame():
     Example
     -----
 
-    >>> print(getObsSiteDataFrame())
-         altitude   pressure
-    LSST    2.663  731.50433
-    CTIO    2.207   774.6052
-    OHP      0.65  937.22595
-    PDM    2.8905  710.90637
-    OMK     4.205  600.17224
-    OSL       0.0     1013.0
+    .. doctest::
+        >>> print(getObsSiteDataFrame())
+               altitude   pressure
+        LSST    2.663  731.50433
+        CTIO    2.207   774.6052
+        OHP      0.65  937.22595
+        PDM    2.8905  710.90637
+        OMK     4.205  600.17224
+        OSL       0.0     1013.0
     """  
     df = pd.DataFrame(columns=['altitude','pressure'], index=list(Dict_Of_sitesAltitudes.keys()))
     for key in Dict_Of_sitesAltitudes.keys():
@@ -96,10 +97,11 @@ def get_obssite_keys(obs_label):
 
     Examples
     --------
-    >>> get_obssite_keys("lsst")   #doctest: +ELLIPSIS
-    1      True
-    0      False
-    ...
+    .. doctest::
+        >>> get_obssite_keys("lsst")   #doctest: +ELLIPSIS
+        1      True
+        0      False
+        ...
     """
     label = sanitizeString(obs_label)
     df = getObsSiteDataFrame()
@@ -398,8 +400,6 @@ class ObsAtmoGrid:
 
 
 
-
-
 class ObsAtmoPressure(ObsAtmoGrid):
     """
     Emulate Atmospheric Transparency above LSST from a data grids
@@ -480,26 +480,27 @@ class ObsAtmo(ObsAtmoPressure):
 
     Usage
     -----
-    >>>  emul =  ObsAtmo()
-    Observatory LSST found in preselected observation sites
 
-    >>> emul =  ObsAtmo('CTIO')
-    Observatory CTIO found in preselected observation sites
+    .. doctest::
+        >>>  emul =  ObsAtmo()
+        Observatory LSST found in preselected observation sites
 
-    >>>  emul =  ObsAtmo('LSST',743.0)
-    Observatory LSST found in preselected observation sites
+        >>> emul =  ObsAtmo('CTIO')
+        Observatory CTIO found in preselected observation sites
+
+        >>>  emul =  ObsAtmo('LSST',743.0)
+        Observatory LSST found in preselected observation sites
 
 
-    >>> wl = [400.,800.,900.]
-    >>> am=1.2
-    >>> pwv =4.0
-    >>> oz=300.
-    >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
-    >>> print(wl)
-    [400.0, 800.0, 900.0]
-    >>> print(transm)
-    [0.72485491 0.97330618 0.85675228]
-
+        >>> wl = [400.,800.,900.]
+        >>> am=1.2
+        >>> pwv =4.0
+        >>> oz=300.
+        >>> transm = emul.GetAllTransparencies(wl,am,pwv,oz)
+        >>> print(wl)
+        [400.0, 800.0, 900.0]
+        >>> print(transm)
+        [0.72485491 0.97330618 0.85675228]
     """
     def __init__(self,obs_str = "LSST", pressure = 0 ) : 
         ObsAtmoPressure.__init__(self,obs_str = obs_str, pressure = pressure )
@@ -519,8 +520,10 @@ class ObsAtmo(ObsAtmoPressure):
         
         Examples
         --------
-        >>> e = ObsAtmo(obs_str = "LSST", pressure = 0)
-        >>> print(c)   #doctest: +ELLIPSIS
+
+        .. doctest::
+            >>> e = ObsAtmo(obs_str = "LSST", pressure = 0)
+            >>> print(c)   #doctest: +ELLIPSIS
 
 
         """
