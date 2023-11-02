@@ -20,6 +20,7 @@ Libradtran is an atmospheric transmission full simulation package which can be d
 from the web site http://www.libradtran.org/.
 
 .. figure:: images/libradtran.png
+   :width: 400
 
 This emulator provides interpolations from atmospheric transmissions for scattering and absorption
 processes photon-air which are calculated by libradtran (version 2.0.5 for this current release).  
@@ -34,8 +35,11 @@ The base class ``ObsAtmoGrid`` implements datafile IO and multi-dimentional inte
 of transparencies.
 
 
-.. inheritance-diagram:: getObsAtmo
-   :top-classes: getObsAtmo.getObsAtmo.ObsAtmoGrid, getObsAtmo.getObsAtmo.ObsAtmoPressure, getObsAtmo.getObsAtmo.ObsAtmo
+.. figure:: images/inheritancediagram.png
+    :width: 400
+
+#.. inheritance-diagram:: getObsAtmo
+#   :top-classes: getObsAtmo.getObsAtmo.ObsAtmoGrid, getObsAtmo.getObsAtmo.ObsAtmoPressure, getObsAtmo.getObsAtmo.ObsAtmo
 
 .. tabs::
 
