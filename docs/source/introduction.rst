@@ -28,6 +28,7 @@ Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
 The altitude-pressure dependence is shown on the figure below:
 
 .. figure:: images/libradtranpy_altitudevspressure.png
+    :width: 400
 
 
 If you don't find your observation site, choose the site having the closest altitude 
@@ -45,5 +46,6 @@ The following figure shows the atmospheric air transparency profiles provided by
 
 
 .. figure:: images/getObsAtmo.png
+    :width: 800
 
 

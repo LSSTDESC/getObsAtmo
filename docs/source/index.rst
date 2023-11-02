@@ -11,11 +11,11 @@ Welcome to getObsAtmo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
-
    introduction
 
    quickstart
+
+   datagrid
 
    notebooks
    
