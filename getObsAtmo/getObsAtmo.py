@@ -46,11 +46,10 @@ def _getPackageDir():
 
 def getObsSiteDataFrame():
     """
-
     Provide the list of observatories which have transmission grids
 
     Example
-    -----
+    -------
 
     .. doctest::
 
@@ -78,16 +77,12 @@ def get_obssite_keys(obs_label):
     """Return the DataFrame keys if an observation site name corresponds to a an entry
     in the tables.
 
-    Parameters
-    ----------
-    obs_label: str
-        The observation site name.
-
-    Returns
-    -------
-    keys: array_like
-        The DataFrame keys corresponding to the star name.
-
+    :param obs_label:  The observation site name. Five sites have ben preselected.
+    :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
+  
+    :return: the dataframe corresponding to the location of the 'obs_label'
+    :rtype: pandas series 
+        
     Examples
     --------
     .. doctest::
@@ -113,14 +108,11 @@ def is_obssite(obs_label):
     """
     Test if an observation site label is among the list atmospheric grids.
 
-    Parameters
-    ----------
-    obs_label: str
-        The observation site name.
-
-    Returns
-    -------
-    is_obssite: bool
+    :param obs_label:  The observation site name. Five sites have ben preselected.
+    :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
+   
+    :return:  check if the observation site is in the predefined set of observation sites
+    :rtype: bool
         True if the observation site is star has a table.
 
     Examples
@@ -143,6 +135,9 @@ class ObsAtmoGrid:
     - 3D grid for PWV absorption vs (wavelength,airmass,PWV)
     - 3D grid for Ozone absorption vs (wavelength,airmass,Ozone)
     - Aerosol transmission for any number of components
+
+    :param obs_label:  The observation site name. Five sites have ben preselected.
+    :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
     """
 
     def __init__(self, obs_str="LSST"):
@@ -152,18 +147,17 @@ class ObsAtmoGrid:
         Both types of data : trainging data for normal interpolaton use and the test data used
         to check accuracy of the interpolation of data.
 
-        Parameters
-        ----------
-            obs_str : str
-                pre-defined observation site tag corresponding to data files in data path
-            
-        Returns
-        --------
-            the emulator
+        :param obs_label:  The observation site name. Five sites have ben preselected.
+        :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
+  
+        :raise: the `obs_label` is not in the list of predefined observatory sites
+
+        :return: the emulator obsject
+        :rtype: object of class `ObsAtmoGrid`
 
         Examples
         --------
-        >>> emulator = ObsAtmo('LSST')
+        >>> emulator = ObsAtmoGrid('LSST')
 
         """
         self.OBS_tag = ""
@@ -269,18 +263,37 @@ class ObsAtmoGrid:
         - O2 absorption
         - PWV absorption
         - Ozone absorption
+        Those 4 processes transmission are derived from an interpolated grid of the atmospheric
+        parameters arguments.
+
+        Note the aerosols are not included as their modelisation is outside
         
-        Parameters
-        ----------
-          - wl : wavelength array or list
-          - am :the airmass,
-          - pwv : the precipitable water vapor (mm)
-          - oz : the ozone column depth in Dobson unit
-          - flags to activate or not the individual interaction processes
-        
-        Returns
-        ------
-           - 1D array of atmospheric transmission (save size as wl)
+        :param wl: wavelength array or list
+        :type wl: float
+
+        :param am: the airmass
+        :type am: float from 1.0 to 2.5
+
+        :param pwv: the precipitable water vapor 
+        :type pwv: float in unit of mm
+
+        :param oz: the ozone column depth 
+        :type oz: float in Dobson unit
+
+        :param flagRayleigh: flags to activate Rayleigh scattering process, default True
+        :type flagRayleigh: bool, optional
+       
+        :param flagO2abs: flags to activate Oxygen absorption process, default True
+        :type flagO2abs: bool, optional
+
+        :param flagPWVabs: flags to activate Precipitable water vapor absorption process, default True
+        :type flagPWVabs: bool, optional
+
+        :param flagOZabs: flags to activate Ozone absorption process, default True
+        :type flagOZabs: bool, optional
+
+        :return: array of atmospheric transmissions (save size as `wl`)
+        :rtype: floats
         
         """
 
@@ -302,22 +315,24 @@ class ObsAtmoGrid:
 
     def GetAerosolsTransparencies(self, wl, am, tau=0., beta=-1.):
         """
-        Compute transmission due to aerosols:
+        Compute transmission due to aerosols.
+        A simple model of aerosols is assumed based on one component with one
+        optical depth and one Angstrom exponent.
         
-        Parameters
-        ----------
-        - wl: float, np.ndarray
-            wavelength array
-        - am: float, np.ndarray
-            the airmass
-        - tau: float
-            the vertical aerosol depth of each component at lambda0 vavelength
-        - beta: float
-            the angstrom exponent. Must be negativ.
+        :param wl: wavelength array or list
+        :type wl: float
+
+        :param am: the airmass
+        :type am: float from 1.0 to 2.5
+
+        :param tau: the vertical aerosol depth of each component at lambda0 vavelength, default set to 0.0 for no aerosol component
+        :type tau: float
+
+        :param beta: the angstrom exponent. Must be negative in the range -3.0 to 0.0
+        :type beta: float
         
-        Returns
-        -------
-            - 1D array of atmospheric transmission (save size as wl)
+        :return: 1D array of atmospheric transmission (save size as wl)
+        :rtype: array of floats
         
         """
 
@@ -332,26 +347,43 @@ class ObsAtmoGrid:
         Combine interpolated libradtran transmission with analytical expression for the
         aerosols
         
-        Parameters
-        ----------
-        - wl: float, np.ndarray
-            wavelength array
-        - am: float, np.ndarray
-            the airmass
-        - pwv: float, np.ndarray
-            the precipitable water vapor (mm)
-        - oz: float, np.ndarray
-            the ozone column depth in Dobson unit
-        - tau: float
-            the vertical aerosol depth of each component at lambda0 vavelength
-        - beta: float
-            the angstrom exponent. Must be negativ.
-        - flags to activate or not the individual interaction processes
+        :param wl: wavelength array or list
+        :type wl: float
+
+        :param am: the airmass
+        :type am: float from 1.0 to 2.5
+
+        :param pwv: the precipitable water vapor 
+        :type pwv: float in unit of mm
+
+        :param oz: the ozone column depth 
+        :type oz: float in Dobson unit
+
+        :param tau: the vertical aerosol depth of each component at lambda0 vavelength,
+        default set to 0.0 for no aerosol component
+        :type tau: float
+
+        :param beta: the angstrom exponent. Must be negative in the range -3,0.
+        :type beta: float
+
+        :param flagRayleigh: flags to activate Rayleigh scattering process, default True
+        :type flagRayleigh: bool, optional
+       
+        :param flagO2abs: flags to activate Oxygen absorption process, default True
+        :type flagO2abs: bool, optional
+
+        :param flagPWVabs: flags to activate Precipitable water vapor absorption process, default True
+        :type flagPWVabs: bool, optional
+
+        :param flagOZabs: flags to activate Ozone absorption process, default True
+        :type flagOZabs: bool, optional
+
+        :param flagAerosols: flags to activate Aerosol scattering, default True
+        :type flagAerosols: bool, optional
         
-        Returns
-        -------
-        - trans: float, np.ndarray
-            1D array of atmospheric transmission (save size as wl)
+        :return: 1D array of atmospheric transmission (save size as wl)
+        :rtype: array of floats
+           
         
         """
 
@@ -374,10 +406,26 @@ class ObsAtmoPressure(ObsAtmoGrid):
     - 2D grid O2 absorption vs  (wavelength,airmass)
     - 3D grid for PWV absorption vs (wavelength,airmass,PWV)
     - 3D grid for Ozone absorption vs (wavelength,airmass,Ozone)
-    - Aerosol transmission for any number of components
+    - Aerosol transmission for only one component.
 
-    It uses the SimpleAtm Emulator. This particular class interpolate transparency
-    with local pressures.
+    It extend the functionalities of ObsAtmoGrid Emulator by providing a correction when the 
+    ground pressure differs from the standard pressure expected at that site. 
+    
+    :param obs_label:  The observation site name. Five sites have ben preselected.
+    :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
+
+    :param pressure: the local pressure. Set it to zero (sefault value) if the standard pressure 
+    expected must be used.
+    :type pressure: float in unit of hPa or mbar. Optional.
+
+    :raise: the `obs_label` is not in the list of predefined observatory sites
+
+    :return: the emulator obsject
+    :rtype: object of class `ObsAtmoPressure`
+
+    Examples
+    --------
+    >>> emulator = ObsAtmoPressure('LSST')
 
     """
 
@@ -388,15 +436,17 @@ class ObsAtmoPressure(ObsAtmoGrid):
         Both types of data : training data for normal interpolation use and the test data used
         to check accuracy of the interpolation of data.
 
-        Parameters
-        ----------
+        :param obs_label:  The observation site name. Five sites have ben preselected.
+        :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
 
-            obs_str : pre-defined observation site tag corresponding to data files in data path
-            pressure : pressure for which one want the transmission in mbar or hPa
-         
-        Returns
-        -------
-            the emulator object ObsAtmoPressure
+        :param pressure: the local pressure. Set it to zero (sefault value) if the standard pressure 
+        expected must be used.
+        :type pressure: float in unit of hPa or mbar. Optional.
+  
+        :raises: the `obs_label` is not in the list of predefined observatory sites
+
+        :return: the emulator obsject
+        :rtype: object of class `ObsAtmoPressure`
 
         """
         ObsAtmoGrid.__init__(self, obs_str=obs_str)
@@ -412,8 +462,18 @@ class ObsAtmoPressure(ObsAtmoGrid):
 
     def GetRayleighTransparencyArray(self, wl, am):
         """
-        Scaling of optical depth by the term P/Pref, where P is the true pressure
-        and Pref is the reference pressure for the site.
+        Correct the Rayleigh scattering implemented in the base class `ObsAtmoGrid`, because
+        the pressure is different from the standard one.
+
+        :param wl: wavelength array or list
+        :type wl: float
+
+        :param am: the airmass
+        :type am: float from 1.0 to 2.5
+
+        :return: array of air transparencies due to Rayleigh scattering at the corresponding pressure
+        :rtype: array of floats 
+
         """
         return np.power(super().GetRayleighTransparencyArray(wl, am), self.pressureratio)
 
@@ -423,8 +483,15 @@ class ObsAtmoPressure(ObsAtmoGrid):
         from libradtran simulations, where P is the true pressure
         and Pref is the reference pressure for the site.
 
-        Comparing LSST site with pressure at Mauna Kea and Sea Level show the satpower
-        = 1.1 is appropriate.
+        :param wl: wavelength array or list
+        :type wl: float
+
+        :param am: the airmass
+        :type am: float from 1.0 to 2.5
+
+        :return: array of air transparencies due to Oxygen absorption at the corresponding pressure
+        :rtype: array of floats
+
         """
         return np.power(super().GetO2absTransparencyArray(wl, am),
                         np.power(self.pressureratio, satpower))
@@ -441,6 +508,19 @@ class ObsAtmo(ObsAtmoPressure):
     ObsAtmo is the user end-point which call the official implementation of the emulator.
     
     By now ``ObsAtmo`` refer to the ``ObsAtmoPressure`` which itself rely on the ``ObsAtmoGrid``.
+
+    :param obs_label:  The observation site name. Five sites have ben preselected.
+    :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
+
+    :param pressure: the local pressure. Set it to zero (sefault value) if the standard pressure 
+    expected must be used.
+    :type pressure: float in unit of hPa or mbar. Optional.
+  
+    :raises: the `obs_label` is not in the list of predefined observatory sites
+
+    :return: the emulator obsject
+    :rtype: object of class `ObsAtmo`
+
 
     Usage
     -----
@@ -463,16 +543,18 @@ class ObsAtmo(ObsAtmoPressure):
         """
         Initialize the ``ObsAtmo`` 
 
-        Parameters 
-        ----------
-        obs_str : str
-            pre-defined observation site tag corresponding to data files in data path
-        pressure : float
-            pressure for which one want the transmission in mbar or hPa
+        :param obs_label:  The observation site name. Five sites have ben preselected.
+        :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
 
-        Returns
-        -------
-            the emulator object ObsAtmoPressure
+        :param pressure: the local pressure. Set it to zero (sefault value) if the standard pressure 
+        expected must be used.
+        :type pressure: float in unit of hPa or mbar. Optional.
+   
+        :raise: the `obs_label` is not in the list of predefined observatory sites
+
+        :return: the emulator obsject
+        :rtype: object of class `ObsAtmo`
+
         
         Examples
         --------
@@ -489,6 +571,21 @@ class ObsAtmo(ObsAtmoPressure):
 
     def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=-1.2, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
+        
+        :param am: the airmass, default set to 1.0
+        :type am: float from 1.0 to 2.5, optional
+
+        :param pwv: the precipitable water vapor, default set to 4.0 mm 
+        :type pwv: float in unit of mm, optional
+
+        :param oz: the ozone column depth, default set to 400 DU. 
+        :type oz: float in Dobson unit, optional
+
+        :param tau: the vertical aerosol depth of each component at lambda0 vavelength,default set to 0.1 
+        :type tau: float,optional
+
+        :param beta: the angstrom exponent. Must be negative in the range -3,0. Default set to -1.2
+        :type beta: float, optional
 
         Examples
         --------
