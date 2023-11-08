@@ -32,23 +32,25 @@ Dict_Of_sitesAltitudes = {'LSST':2.663, # Rubin-LSST
 
 def usage():
     print("*******************************************************************")
-    print(sys.argv[0],' -s<observation site-string> ')
+    print(sys.argv[0],' -s<observation site-string> -a <airmassmin,airmassmax,nbins> -v <pwvmin, pwvmax,nbins> -o <ozmin, ozmax,nbins>')
     print("Observation sites are : ")
     print(' '.join(Dict_Of_sitesAltitudes.keys()))
+    print('example : python ',  sys.argv[0], ' -s LSST -a 0,2.5,10 -v 0,10,20 -o 0,600,30' )
    
-
-    print('\t Actually provided : ')
+    print('\t Arguments actually provided : ')
     print('\t \t Number of arguments:', len(sys.argv), 'arguments.')
     print('\t \t Argument List:', str(sys.argv))
 
+def decode_args(arg_str):
+    return arg_str.split(',')
 
 if __name__ == "__main__":
 
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hs:",["s="])
+        opts, args = getopt.getopt(sys.argv[1:],"hs:a:v:o:",["s=","a=","v=","o="])
     except getopt.GetoptError:
-        print(' Exception bad getopt with :: '+sys.argv[0]+ ' -s<observation-site-string> -q<procs>')
+        print(' Exception bad getopt with :: '+sys.argv[0]+ ' -s<observation-site-string> -a <airmassmin,airmassmax,nbins> -v <pwvmin,pwvmax,nbins> -o <ozmin,ozmax,nbins>' )
         sys.exit(2)
 
     print('opts = ',opts)
@@ -56,16 +58,24 @@ if __name__ == "__main__":
         
      
     alt_str = ""
-   
+    am_str  = ""
+    pwv_str =""
+    oz_str  = ""
 
     for opt, arg in opts:
         if opt == '-h':
             usage()
             sys.exit()
         elif opt in ("-s", "--site"):
-            alt_str = arg
-        
-
+            alt_str = arg.upper()
+        elif opt in ("-a", "--airmass"):
+            am_str = arg
+        elif opt in ("-v", "--pwv"):
+            pwv_str = arg
+        elif opt in ("-o", "--oz"):
+            oz_str = arg
+        else:
+            msg =f"Unknown option {opt} = {arg}"
         
     if alt_str in Dict_Of_sitesAltitudes.keys():
         OBS_tag = alt_str
@@ -74,6 +84,15 @@ if __name__ == "__main__":
         print(f"This site {alt_str} must be added in libradtranpy preselected sites")
         sys.exit()
 
+
+    print("am_str=",am_str,decode_args(am_str))
+
+
+    print("pwv_str=",pwv_str,decode_args(pwv_str))
+    print("oz_str=",oz_str,decode_args(oz_str))
+   
+    exit(0)
+    
     FLAG_SCATTERING = True
     FLAG_ABSORPTION = True
    
