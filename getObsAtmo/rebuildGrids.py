@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# # Generate grids
-
+# # Generate atmospheric parameter grids of transmissions 
+# for getObsAtmo emulator
+####################################
 
 # Import some generally useful packages
 
@@ -36,16 +36,25 @@ Dict_Of_sitesAltitudes = {'LSST':2.663, # Rubin-LSST
 
 
 def usage():
-    print("*******************************************************************")
+    print("************************************************************************")
+    print("Help to generation of atmospheric parameter grid for getObsAtmo emulator")
     print(sys.argv[0],' -s<observation site-string> -a <airmassmin,airmassmax,nbins> -v <pwvmin, pwvmax,nbins> -o <ozmin, ozmax,nbins>')
     print("Observation sites are : ")
     print(' '.join(Dict_Of_sitesAltitudes.keys()))
-    print('example : python ',  sys.argv[0], ' -s LSST -a 0,2.5,10 -v 0,10,20 -o 0,600,30' )
-   
+    print('- atmospheric parameters should be specified of 3 numbers : valmin, valmax, x' )
+    print('  where valmin is the minimum value, valmax is the maximum value ')
+    print('        * if x = N in integer  -->  number of grid points')
+    print('        * if x = dx is float   -->  point spacing ')
+    print('        -a  : airmass ')
+    print('        -v  : precipitable water vapor ')
+    print('        -o  : ozone ')
+    print('        --------------------------------------------------------')
+    print(' example : python ',  sys.argv[0], ' -s LSST -a 1,2.6,0.1 -v 0,10.25,0.25 -o 0.,625.0,25.' )
+    print(' or      : python ',  sys.argv[0], ' -s LSST -a 1,2.5,16   -v 0,10,41  -o  0.,600.0,25 ' )
     print('\t Arguments actually provided : ')
     print('\t \t Number of arguments:', len(sys.argv), 'arguments.')
     print('\t \t Argument List:', str(sys.argv))
-
+    print("************************************************************************")
 
 def is_float(str):
     try:
@@ -56,7 +65,6 @@ def is_float(str):
 
 def decode_args(arg_str):
     """String the input args in three numbers 
-
     :param arg_str: 
     :type arg_str: _type_
     :raises Exception: either the input arg cannot be splint in 3 element, or one of element is not a number
@@ -79,8 +87,8 @@ def decode_args(arg_str):
         msg = f"bad list of 3 numbers {arg_str} are not all numbers" 
         raise Exception(msg)
     
-    print("test floats : ",  test_all_floats , "==>" , res_floats)
-    print("test digits : ",  test_all_digits , "==>" , res_digits)
+    #print("test floats : ",  test_all_floats , "==>" , res_floats)
+    #print("test digits : ",  test_all_digits , "==>" , res_digits)
     
     valmin= float(list_of_numbers[0])
     valmax= float(list_of_numbers[1])
@@ -90,7 +98,7 @@ def decode_args(arg_str):
         raise Exception(msg)
     
     if  test_all_digits[2]:
-        N= int(list_of_numbers[2])
+        N = int(list_of_numbers[2])
         array = np.linspace(valmin,valmax,N)
         return array
     else:
@@ -100,8 +108,7 @@ def decode_args(arg_str):
 
 
     
-
-
+#-----------------------------------------------------------------------
 if __name__ == "__main__":
 
 
@@ -175,8 +182,6 @@ if __name__ == "__main__":
     # info dictionary
 
     info_params = {}
-
-
     info_params["OBS"] = OBS_tag
 
     ##################
@@ -201,7 +206,6 @@ if __name__ == "__main__":
 
     info_params = copy.deepcopy(info_params)
     
-
     ####################
     # ### airmass
     ####################
@@ -210,19 +214,22 @@ if __name__ == "__main__":
 
     if am_str == "":
         AIRMASSMIN=1.0
-        AIRMASSMAX=2.6
+        AIRMASSMAX=2.51
         DAM = 0.1
+        airmasses = np.arange(AIRMASSMIN,AIRMASSMAX,DAM)
+        AIRMASSMAX = airmasses.max()
         print(">>> Select default airmass-grid : ")
     else:
         AIRMASSMIN = am_array.min()
         AIRMASSMAX = am_array.max()
         DAM = np.median(np.diff(am_array))
+        airmasses = am_array
         print(">>> Select user airmass-grid : ")
 
-    airmasses = np.arange(AIRMASSMIN,AIRMASSMAX,DAM)
     NAM=len(airmasses)
-    NX=len(airmasses)
-    NY=NWLBIN
+
+    #NX=len(airmasses)
+    #NY=NWLBIN
 
     info_params["AIRMASSMIN"] = airmasses.min()
     info_params["AIRMASSMAX"] = airmasses.max()
@@ -242,18 +249,18 @@ if __name__ == "__main__":
 
     if pwv_str == "":
         PWVMIN = 0.0
-        PWVMAX = 11.0
+        PWVMAX = 10.24
         DPWV = 0.25
+        pwvs = np.arange(PWVMIN,PWVMAX,DPWV)
+        PWVMAX =pwvs.max()
         print(">>> Select default pwv-grid : ")
     else:
         PWVMIN = pwv_array.min()
         PWVMAX = pwv_array.max()
         DPWV = np.median(np.diff(pwv_array))
+        pwvs = pwv_array
         print(">>> Select user pwv-grid : ")
 
-
-    pwvs = np.arange(PWVMIN,PWVMAX,DPWV)
-    
 
     NPWV = len(pwvs)
 
@@ -275,14 +282,17 @@ if __name__ == "__main__":
         OZMIN = 0.0
         OZMAX = 610.0
         DOZ   = 25.0
+        ozs = np.arange(OZMIN,OZMAX,DOZ)
+        OZMAX = ozs.max()
         print(">>> Select default oz-grid : ")
     else:
-        OZMIN = pwv_array.min()
-        OZMAX = pwv_array.max()
-        DOZ = np.median(np.diff(pwv_array))
+        OZMIN = oz_array.min()
+        OZMAX = oz_array.max()
+        DOZ = np.median(np.diff(oz_array))
+        ozs = oz_array
         print(">>> Select user oz-grid : ")
 
-    ozs = np.arange(OZMIN,OZMAX,DOZ)
+    
     NOZ = len(ozs)
 
     info_params["OZMIN"] = ozs.min()
