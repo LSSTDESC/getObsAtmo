@@ -118,8 +118,8 @@ if __name__ == "__main__":
         print(' Exception bad getopt with :: '+sys.argv[0]+ ' -s<observation-site-string> -a <airmassmin,airmassmax,nbins> -v <pwvmin,pwvmax,nbins> -o <ozmin,ozmax,nbins>' )
         sys.exit(2)
 
-    print('opts = ',opts)
-    print('args = ',args)
+    #print('opts = ',opts)
+    #print('args = ',args)
         
      
     alt_str = ""

@@ -17,6 +17,8 @@ Welcome to getObsAtmo's documentation!
 
    datagrid
 
+   rebuild
+
    notebooks
    
    apidocs
