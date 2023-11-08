@@ -7,14 +7,14 @@ by using the python script ``rebuildGrid.py``.
 
 Theses grids consist in a set of 5 files 1 set per pre-defined observation site.
 
-- summary file containing data grid definitions under the format of a dictionnary(*pickle format*)
-- the 2D (wavelength,airmass) grid for the Rayleigh scattering transmission,
-- the 2D (wavelength,airmass) grid for the O2 absorption transmission,
-- the 3D (wavelengthn,airmass, pwv) grid for the precipitable water vapor tranmission,
-- the 3D (wavelengthn,airmass, ozone) grid for the Ozone transmission.
+* summary file containing data grid definitions under the format of a dictionnary(*pickle format*)
+* the 2D (wavelength,airmass) grid for the Rayleigh scattering transmission,
+* the 2D (wavelength,airmass) grid for the O2 absorption transmission,
+* the 3D (wavelengthn,airmass, pwv) grid for the precipitable water vapor tranmission,
+* the 3D (wavelengthn,airmass, ozone) grid for the Ozone transmission.
 
-Requirements for rebuildGrid.py
--------------------------------
+Requirements for rebuildGrid
+----------------------------
 
 Runnning ``rebuildGrid.py`` requires the installation of ``libRadtran`` 
 and ``libradtranpy``.
@@ -25,8 +25,8 @@ Documentation to install those packages can be found at:
 * `github repository for libradtranpy <https://github.com/LSSTDESC/libradtranpy/>`_
 
 
-Call of rebuildGrid.py
-----------------------
+Calling rebuildGrid
+-------------------
 
 
 In a shell :
