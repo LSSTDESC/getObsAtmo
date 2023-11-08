@@ -7,7 +7,7 @@ Installation
 
 .. code-block:: bash
 
-   git clone git@github.com:LSSTDESC/getObsAtmo.git
+   git clone https://github.com/LSSTDESC/getObsAtmo.git
    cd getObsAtmo
    python setup.py install
    

@@ -17,6 +17,8 @@ for a detailed simulation radiative transfer through the earth atmosphere.
 If this emulator has been setup for the Rubin-LSST observatory, it may be used 
 for any other observation site.
 
+This package can be downloaded from `its github repository <https://github.com/LSSTDESC/getObsAtmo/>`_ .
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
