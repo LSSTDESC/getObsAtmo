@@ -16,6 +16,8 @@ from scipy import interpolate
 from libradtranpy import  libsimulateVisible
 import sys,getopt
 
+import ast
+import numbers 
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -29,6 +31,9 @@ Dict_Of_sitesAltitudes = {'LSST':2.663, # Rubin-LSST
                           'OMK':4.205,  # Mauna Kea
                           'OSL':0,      # Sea Level
                            }
+             
+
+
 
 def usage():
     print("*******************************************************************")
@@ -41,8 +46,61 @@ def usage():
     print('\t \t Number of arguments:', len(sys.argv), 'arguments.')
     print('\t \t Argument List:', str(sys.argv))
 
+
+def is_float(str):
+    try:
+        float(str)
+        return True
+    except ValueError:
+        return False
+
 def decode_args(arg_str):
-    return arg_str.split(',')
+    """String the input args in three numbers 
+
+    :param arg_str: 
+    :type arg_str: _type_
+    :raises Exception: either the input arg cannot be splint in 3 element, or one of element is not a number
+    :return: a numpy array of numbers
+    :rtype: float
+    """
+    list_of_numbers = arg_str.split(',')
+
+    nn = len(list_of_numbers)
+    if nn != 3:
+        msg = f"bad list of 3 numbers {arg_str}" 
+        raise Exception(msg)
+    
+    test_all_floats = [ is_float(str) for str in list_of_numbers ]
+    res_floats = all(test for test in test_all_floats) 
+    test_all_digits = [ str.isdigit() for str in list_of_numbers ]    
+    res_digits = all(test for test in test_all_digits) 
+
+    if not res_floats:
+        msg = f"bad list of 3 numbers {arg_str} are not all numbers" 
+        raise Exception(msg)
+    
+    print("test floats : ",  test_all_floats , "==>" , res_floats)
+    print("test digits : ",  test_all_digits , "==>" , res_digits)
+    
+    valmin= float(list_of_numbers[0])
+    valmax= float(list_of_numbers[1])
+
+    if valmin>= valmax:
+        msg = f"bad values for {arg_str} : valmin = {valmin} >= valmax = {valmax}" 
+        raise Exception(msg)
+    
+    if  test_all_digits[2]:
+        N= int(list_of_numbers[2])
+        array = np.linspace(valmin,valmax,N)
+        return array
+    else:
+        step = float(list_of_numbers[2])
+        array = np.arange(valmin,valmax,step)
+        return array
+
+
+    
+
 
 if __name__ == "__main__":
 
@@ -59,7 +117,7 @@ if __name__ == "__main__":
      
     alt_str = ""
     am_str  = ""
-    pwv_str =""
+    pwv_str = ""
     oz_str  = ""
 
     for opt, arg in opts:
@@ -84,18 +142,22 @@ if __name__ == "__main__":
         print(f"This site {alt_str} must be added in libradtranpy preselected sites")
         sys.exit()
 
+    if am_str != "":
+        am_array = decode_args(am_str)
+    else:
+        am_array=np.array([])
 
-    print("am_str=",am_str,decode_args(am_str))
-
-
-    print("pwv_str=",pwv_str,decode_args(pwv_str))
-    print("oz_str=",oz_str,decode_args(oz_str))
-   
-    exit(0)
+    if pwv_str != "":
+        pwv_array = decode_args(pwv_str)
+    else:
+        pwv_array=np.array([])
     
-    FLAG_SCATTERING = True
-    FLAG_ABSORPTION = True
-   
+    if oz_str != "":
+        oz_array = decode_args(oz_str)
+    else:
+        oz_array=np.array([])
+
+    
 
     ########################
     ## Configuration
@@ -134,7 +196,7 @@ if __name__ == "__main__":
     info_params["WL"] = WL
 
     #################################
-    # training and test dictionaries
+    #  dictionary
     #################################
 
     info_params = copy.deepcopy(info_params)
@@ -144,14 +206,21 @@ if __name__ == "__main__":
     # ### airmass
     ####################
 
-    AIRMASSMIN=1.0
-    AIRMASSMAX=2.6
-    DAM = 0.1
+    print("-------------------------------------------------------------------------------------------------")
+
+    if am_str == "":
+        AIRMASSMIN=1.0
+        AIRMASSMAX=2.6
+        DAM = 0.1
+        print(">>> Select default airmass-grid : ")
+    else:
+        AIRMASSMIN = am_array.min()
+        AIRMASSMAX = am_array.max()
+        DAM = np.median(np.diff(am_array))
+        print(">>> Select user airmass-grid : ")
 
     airmasses = np.arange(AIRMASSMIN,AIRMASSMAX,DAM)
     NAM=len(airmasses)
-
-
     NX=len(airmasses)
     NY=NWLBIN
 
@@ -161,14 +230,27 @@ if __name__ == "__main__":
     info_params["DAIRMASS"] = np.median(np.diff(airmasses))
     info_params["AIRMASS"]  = airmasses
 
+    msg = f"airmass - grid : Npoints = {NAM}, valmin={AIRMASSMIN:.3f} , valmax={AIRMASSMAX:.3f} , valstep= {DAM:.3f}"
+    print(msg)
+    print(airmasses)
 
     #########################
     # ### PWV
     #########################
 
-    PWVMIN = 0
-    PWVMAX = 11
-    DPWV = 0.25
+    print("-------------------------------------------------------------------------------------------------")
+
+    if pwv_str == "":
+        PWVMIN = 0.0
+        PWVMAX = 11.0
+        DPWV = 0.25
+        print(">>> Select default pwv-grid : ")
+    else:
+        PWVMIN = pwv_array.min()
+        PWVMAX = pwv_array.max()
+        DPWV = np.median(np.diff(pwv_array))
+        print(">>> Select user pwv-grid : ")
+
 
     pwvs = np.arange(PWVMIN,PWVMAX,DPWV)
     
@@ -181,14 +263,26 @@ if __name__ == "__main__":
     info_params["DPWV"] = np.median(np.diff(pwvs))
     info_params["PWV"]  = pwvs
 
+    msg = f"pwv - grid : Npoints = {NPWV}, valmin={PWVMIN:.3f} , valmax={PWVMAX:.3f} , valstep= {DPWV:.3f}"
+    print(msg)
+    print(pwvs)
+
 
     # ### OZONE
-    OZMIN = 0
-    OZMAX = 600
-    DOZ   = 25
+    print("-------------------------------------------------------------------------------------------------")
+
+    if oz_str == "":
+        OZMIN = 0.0
+        OZMAX = 610.0
+        DOZ   = 25.0
+        print(">>> Select default oz-grid : ")
+    else:
+        OZMIN = pwv_array.min()
+        OZMAX = pwv_array.max()
+        DOZ = np.median(np.diff(pwv_array))
+        print(">>> Select user oz-grid : ")
 
     ozs = np.arange(OZMIN,OZMAX,DOZ)
-    
     NOZ = len(ozs)
 
     info_params["OZMIN"] = ozs.min()
@@ -197,7 +291,13 @@ if __name__ == "__main__":
     info_params["DOZ"] = np.median(np.diff(ozs))
     info_params["OZ"]  = ozs
 
-    
+    msg = f"oz - grid : Npoints = {NOZ}, valmin={OZMIN:.3f} , valmax={OZMAX:.3f} , valstep= {DOZ:.3f}"
+    print(msg)
+    print(ozs)
+
+    print("-------------------------------------------------------------------------------------------------")
+
+
     with open(file0_out, 'wb') as handle:
         pickle.dump(info_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
@@ -216,110 +316,101 @@ if __name__ == "__main__":
     ##############################################
 
     # note we call function ProcessSimulation with proc_str='sc' which mean scattering only
-
-    # set pwv and ozone to zero (no need here)
-
-    if FLAG_SCATTERING:
-        pwv= 0
-        oz = 0
-
-        #training
-        for idx,am in enumerate(airmasses):
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='sc',cloudext=0.0, altitude_str = OBS_tag,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-            atm=f(WL)
-            data_rayleigh[:,idx]=atm
+    # set pwv and ozone to zero (no need here)    
+    pwv= 0
+    oz = 0
+   
+    for idx,am in enumerate(airmasses):
+        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='sc',cloudext=0.0, altitude_str = OBS_tag,FLAG_VERBOSE=False)
+        data = np.loadtxt(os.path.join(path,thefile))
+        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+        atm=f(WL)
+        data_rayleigh[:,idx]=atm
     
-        np.save(file1_out,data_rayleigh, allow_pickle=False)
+    np.save(file1_out,data_rayleigh, allow_pickle=False)
+
+    
+    ##########################################
+    # Simulation of O2 absorption
+    ##############################################
+    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
+    # set pwv and ozone to zero (no need here)
+    pwv = 0.0
+    oz = 0.0
 
 
+    print("======================================")
+    print("Simulation of O2 sample")
+    print("======================================")
 
-    if FLAG_ABSORPTION:
-        ##########################################
-        # Simulation of O2 absorption
-        ##############################################
+    for idx,am in enumerate(airmasses):
+        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0,altitude_str = OBS_tag ,FLAG_VERBOSE=False)
+        data = np.loadtxt(os.path.join(path,thefile))
+        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+        atm=f(WL)
+        data_O2abs[:,idx]=atm
 
-        # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-
-        # set pwv and ozone to zero (no need here)
-        pwv = 0.0
-        oz = 0.0
-
-
-        print("======================================")
-        print("Simulation of O2 sample")
-        print("======================================")
-
-        for idx,am in enumerate(airmasses):
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0,altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-            atm=f(WL)
-            data_O2abs[:,idx]=atm
-
-        np.save(file2_out,data_O2abs, allow_pickle=False)
-        print(f"...... O2 abs file {file2_out} written")
+    np.save(file2_out,data_O2abs, allow_pickle=False)
+    print(f"...... O2 abs file {file2_out} written")
 
         
 
-        ##########################################
-        # Simulation of H2O absorption
-        ##############################################
+    ##########################################
+    # Simulation of H2O absorption
+    ##############################################
 
-        # ## Precipitable water vapor
-        print("======================================")
-        print("Simulation of PWV sample")
-        print("======================================")
+    # ## Precipitable water vapor
+    print("======================================")
+    print("Simulation of PWV sample")
+    print("======================================")
 
-        # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-        # we cut ozone
-        # however we cannot cut O2 absorption
+    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
+    # we cut ozone
+    # however we cannot cut O2 absorption
 
-        oz = 0.0
-        for idx_pwv,pwv in enumerate(pwvs):
-            data_slice=np.zeros((NWLBIN,NAM))
-            for idx_am,am in enumerate(airmasses):     
-                path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-                data = np.loadtxt(os.path.join(path,thefile))
-                f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-                atm=f(WL)
-                data_slice[:,idx_am]=atm
-            # remove O2 absorption in H2O absorption profile
-            data_slice /=data_O2abs
-            data_H2Oabs[:,:,idx_pwv] = data_slice
+    oz = 0.0
+    for idx_pwv,pwv in enumerate(pwvs):
+        data_slice=np.zeros((NWLBIN,NAM))
+        for idx_am,am in enumerate(airmasses):     
+            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
+            data = np.loadtxt(os.path.join(path,thefile))
+            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+            atm=f(WL)
+            data_slice[:,idx_am]=atm
+        # remove O2 absorption in H2O absorption profile
+        data_slice /=data_O2abs
+        data_H2Oabs[:,:,idx_pwv] = data_slice
 
-        np.save(file3_out,data_H2Oabs,allow_pickle=False)
-        print(f"...... H2O abs file {file3_out} written")
+    np.save(file3_out,data_H2Oabs,allow_pickle=False)
+    print(f"...... H2O abs file {file3_out} written")
        
 
 
-        ##########################################
-        # Simulation of Ozone absorption
-        ##############################################
+    ##########################################
+    # Simulation of Ozone absorption
+    ##############################################
 
-        print("======================================")
-        print("Simulation of Ozone sample")
-        print("======================================")
+    print("======================================")
+    print(" Simulation of Ozone sample" )
+    print("======================================")
 
-        # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-        # we remove pwv absorption
-        # however we cannot cut O2 absorption
-        pwv=0.0
-        for idx_oz,oz in enumerate(ozs):
-            data_slice=np.zeros((NWLBIN,NAM))
-            for idx_am,am in enumerate(airmasses):     
-                path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-                data = np.loadtxt(os.path.join(path,thefile))
-                f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-                atm=f(WL)
-                data_slice[:,idx_am]=atm
-            # remove O2 profile from ozone profile
-            data_slice/=data_O2abs
-            data_OZabs[:,:,idx_oz] = data_slice
+    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
+    # we remove pwv absorption
+    # however we cannot cut O2 absorption
+    pwv=0.0
+    for idx_oz,oz in enumerate(ozs):
+        data_slice=np.zeros((NWLBIN,NAM))
+        for idx_am,am in enumerate(airmasses):     
+            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
+            data = np.loadtxt(os.path.join(path,thefile))
+            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+            atm=f(WL)
+            data_slice[:,idx_am]=atm
+        # remove O2 profile from ozone profile
+        data_slice/=data_O2abs
+        data_OZabs[:,:,idx_oz] = data_slice
 
-
-        np.save(file4_out,data_OZabs, allow_pickle=False)
-        print(f"...... O3 abs file {file4_out} written")
+    np.save(file4_out,data_OZabs, allow_pickle=False)
+    print(f"...... O3 abs file {file4_out} written")
 
         
