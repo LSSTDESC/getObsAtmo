@@ -211,7 +211,7 @@ class ObsAtmoGrid:
         self.OZ = self.info_params['OZ']
 
         # constant parameters defined for aerosol formula
-        self.lambda0 = 550.
+        self.lambda0 = 500.
         self.tau0 = 1.
 
         # interpolation is done over training dataset
@@ -313,7 +313,7 @@ class ObsAtmoGrid:
 
         return transm
 
-    def GetAerosolsTransparencies(self, wl, am, tau=0., beta=-1.):
+    def GetAerosolsTransparencies(self, wl, am, tau=0., beta=1.2):
         """
         Compute transmission due to aerosols.
         A simple model of aerosols is assumed based on one component with one
@@ -328,7 +328,7 @@ class ObsAtmoGrid:
         :param tau: the vertical aerosol depth of each component at lambda0 vavelength, default set to 0.0 for no aerosol component
         :type tau: float
 
-        :param beta: the angstrom exponent. Must be negative in the range -3.0 to 0.0
+        :param beta: the angstrom exponent. Must be positive in the range 0.0 to 3.0
         :type beta: float
         
         :return: 1D array of atmospheric transmission (save size as wl)
@@ -337,11 +337,11 @@ class ObsAtmoGrid:
         """
 
         wl = np.array(wl)
-        exponent = (tau / self.tau0) * np.exp(beta * np.log(wl / self.lambda0)) * am
+        exponent = (tau / self.tau0) * np.exp(-beta * np.log(wl / self.lambda0)) * am
         transm = np.exp(-exponent)
         return transm
 
-    def GetAllTransparencies(self, wl, am, pwv, oz, tau=0., beta=-1., flagRayleigh=True, flagO2abs=True, flagPWVabs=True,
+    def GetAllTransparencies(self, wl, am, pwv, oz, tau=0., beta=1.2, flagRayleigh=True, flagO2abs=True, flagPWVabs=True,
                              flagOZabs=True, flagAerosols=True):
         """
         Combine interpolated libradtran transmission with analytical expression for the
@@ -363,7 +363,7 @@ class ObsAtmoGrid:
         default set to 0.0 for no aerosol component
         :type tau: float
 
-        :param beta: the angstrom exponent. Must be negative in the range -3,0.
+        :param beta: the angstrom exponent. Must be positive in the range 0., 3.
         :type beta: float
 
         :param flagRayleigh: flags to activate Rayleigh scattering process, default True
@@ -569,7 +569,7 @@ class ObsAtmo(ObsAtmoPressure):
         ObsAtmoPressure.__init__(self, obs_str=obs_str, pressure=pressure)
         self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
 
-    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=-1.2, xscale="linear", yscale="linear"):
+    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.2, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
         
         :param am: the airmass, default set to 1.0
@@ -584,7 +584,7 @@ class ObsAtmo(ObsAtmoPressure):
         :param tau: the vertical aerosol depth of each component at lambda0 vavelength,default set to 0.1 
         :type tau: float,optional
 
-        :param beta: the angstrom exponent. Must be negative in the range -3,0. Default set to -1.2
+        :param beta: the angstrom exponent. Must be positive in the range 0-3.0. Default set to +1.2
         :type beta: float, optional
 
         Examples
