@@ -202,12 +202,24 @@ class ObsAtmoGrid:
 
         """
         self.OBS_tag = ""
-        if obs_str in Dict_Of_sitesAltitudes.keys():
-            self.OBS_tag = obs_str
-        else:
+
+        #if obs_str in Dict_Of_sitesAltitudes.keys():
+        #    self.OBS_tag = obs_str
+        #else:
+        #    raise ValueError(f"Observatory {obs_str} not in preselected observation sites.\n "
+        #                     f"This site {obs_str} must be added in libradtranpy preselected sites "
+        #                     f"and generate corresponding scattering and absorption profiles.")
+
+        obs_tag = validateObsName(obs_str)
+
+        if obs_tag is None:
             raise ValueError(f"Observatory {obs_str} not in preselected observation sites.\n "
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
+        else:
+            print(f"{obs_tag} is OK")
+            self.OBS_tag = obs_tag
+
 
         self.Name = f"Atmospheric emulator ObsAtmoGrid for observation site {self.OBS_tag}"
 
@@ -493,7 +505,10 @@ class ObsAtmoPressure(ObsAtmoGrid):
         ObsAtmoGrid.__init__(self, obs_str=obs_str)
 
         self.pressure = pressure
-        self.refpressure = Dict_Of_sitesPressures[obs_str]
+        #self.refpressure = Dict_Of_sitesPressures[obs_str]
+        self.refpressure = Dict_Of_sitesPressures[self.OBS_tag]
+
+        
         self.pressureratio = self.pressure / self.refpressure
         if pressure == 0.0:
             self.pressureratio = 1
@@ -608,7 +623,11 @@ class ObsAtmo(ObsAtmoPressure):
 
         """
         ObsAtmoPressure.__init__(self, obs_str=obs_str, pressure=pressure)
-        self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
+        #self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
+        self.Name = f"Atmospheric emulator ObsAtmo for observation site {self.OBS_tag}"
+
+       
+
 
     def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.2, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
