@@ -7,7 +7,16 @@ import os
 import sys
 
 
-__all__ = ['get_obssite_keys', 'is_obssite', 'ObsAtmo']
+__all__ = ['Dict_Of_sitesAltitudes',
+           'Dict_Of_sitesPressures',
+           'Dict_Of_sitesAliases',
+           'file_data_dict',
+           '_getPackageDir',
+           'get_obssite_keys',
+           'sanitizeString',
+           'validateObsName', 
+           'is_obssite', 
+           'ObsAtmo']
 
 
 # preselected sites
@@ -26,6 +35,14 @@ Dict_Of_sitesPressures = {'LSST': 731.50433,
                           'OMK': 600.17224,
                           'OSL': 1013.000,
                           }
+
+Dict_Of_sitesAliases = {'LSST': ['Rubin','Rubin Observatory','Auxtel'],
+                        'CTIO': ["Cerro Tololo"],
+                        'OHP': ["Observatoire de Haute Provence"],
+                        'PDM': ["Pic du Midi","Observatoire du Pic du Midi"],
+                        'OMK': ["Mauna Kea","Mauna Kea Observatory"],
+                        'OSL': ["Sea Level","Sea Level Observatory"]
+                        }
 
 file_data_dict = {
     "info": "atmospherictransparencygrid_params.pickle",
@@ -67,10 +84,27 @@ def getObsSiteDataFrame():
         df.loc[key] = pd.Series({'altitude': Dict_Of_sitesAltitudes[key], 'pressure': Dict_Of_sitesPressures[key]})
     return df
 
-
-def sanitizeString(label):
+def sanitizeString(label) -> str:
     """This method sanitizes the site label."""
     return label.upper().replace(' ', '')
+
+def validateObsName(obssitename) -> str :
+    """Validate if the obsite name is a valid observation site
+
+    :param obssitename: observatory site name including a possible alias
+    :type obssitename: str
+    :return: valid obssite key label
+    :rtype: str or None  
+    """
+
+    sitename = sanitizeString(obssitename)
+    for key_site, listnames in Dict_Of_sitesAliases.items():
+        sanit_listname = list(map(lambda x: sanitizeString(x), listnames))
+        if sitename in sanit_listname:
+            return key_site
+    return None
+
+
 
 
 def get_obssite_keys(obs_label):
