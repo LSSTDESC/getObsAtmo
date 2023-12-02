@@ -58,6 +58,7 @@ class GetObsAtmoTestCase(unittest.TestCase):
         """Test if observation site exist
         """
         self.assertTrue(is_obssite("LSST"))
+        self.assertTrue(is_obssite("a u x tel"))
         self.assertTrue(is_obssite("CTIO"))
         self.assertTrue(is_obssite("OMK"))
         self.assertFalse(is_obssite("AMissingObs"))

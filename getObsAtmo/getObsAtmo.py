@@ -100,7 +100,7 @@ def validateObsName(obssitename) -> str :
     sitename = sanitizeString(obssitename)
     for key_site, listnames in Dict_Of_sitesAliases.items():
         sanit_listname = list(map(lambda x: sanitizeString(x), listnames))
-        if sitename in sanit_listname:
+        if sitename in sanit_listname or sitename == key_site:
             return key_site
     return None
 
@@ -156,7 +156,14 @@ def is_obssite(obs_label):
     >>> is_obssite("OHP")
     True
     """
-    return np.any(get_obssite_keys(sanitizeString(obs_label)))
+
+    #return np.any(get_obssite_keys(sanitizeString(obs_label)))
+    obs_tag = validateObsName(obs_label)
+
+    if obs_tag is None:
+        return False
+    else:
+        return np.any(get_obssite_keys(obs_tag))
 
 
 class ObsAtmoGrid:
