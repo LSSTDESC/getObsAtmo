@@ -2,8 +2,10 @@
 # python -m unittest -v
 
 import unittest
-from getObsAtmo import Dict_Of_sitesAltitudes,Dict_Of_sitesAliases,Dict_Of_sitesPressures,file_data_dict
-from getObsAtmo import _getPackageDir,sanitizeString,validateObsName,is_obssite, ObsAtmo
+from getObsAtmo import Dict_Of_sitesAltitudes,Dict_Of_sitesAliases,Dict_Of_sitesPressures
+from getObsAtmo import file_data_dict
+from getObsAtmo import _getPackageDir,sanitizeString,validateObsName,is_obssite
+from getObsAtmo import ObsAtmo,ObsAtmoPressure,ObsAtmoGrid
 import numpy as np 
 import os
 
@@ -75,6 +77,32 @@ class GetObsAtmoTestCase(unittest.TestCase):
         e = ObsAtmo('AUXTEL')
         array = e.GetAllTransparencies([300.,400.,600.,800.,1000.],1.,0.,0.)
         self.assertTrue(np.allclose(array,[0.41483073, 0.76797745, 0.95170851, 0.98476396, 0.9937721 ]),msg="ObsAtmo.GetAllTransparencies error")
+
+
+    def test_ObsAtmoPressure(self):
+        """Test ObsAtmoPressure emulator
+        """
+        e = ObsAtmoPressure('LSST')
+        array = e.GetAllTransparencies([300.,400.,600.,800.,1000.],1.,0.,0.)
+        self.assertTrue(np.allclose(array,[0.41483073, 0.76797745, 0.95170851, 0.98476396, 0.9937721 ]),msg="ObsAtmo.GetAllTransparencies error")
+
+        e = ObsAtmoPressure('AUXTEL')
+        array = e.GetAllTransparencies([300.,400.,600.,800.,1000.],1.,0.,0.)
+        self.assertTrue(np.allclose(array,[0.41483073, 0.76797745, 0.95170851, 0.98476396, 0.9937721 ]),msg="ObsAtmo.GetAllTransparencies error")
+
+
+
+    def test_ObsAtmoGrid(self):
+        """Test ObsAtmoGrid emulator
+        """
+        e = ObsAtmoGrid('LSST')
+        array = e.GetAllTransparencies([300.,400.,600.,800.,1000.],1.,0.,0.)
+        self.assertTrue(np.allclose(array,[0.41483073, 0.76797745, 0.95170851, 0.98476396, 0.9937721 ]),msg="ObsAtmo.GetAllTransparencies error")
+
+        e = ObsAtmoGrid('AUXTEL')
+        array = e.GetAllTransparencies([300.,400.,600.,800.,1000.],1.,0.,0.)
+        self.assertTrue(np.allclose(array,[0.41483073, 0.76797745, 0.95170851, 0.98476396, 0.9937721 ]),msg="ObsAtmo.GetAllTransparencies error")
+
 
 
 if __name__ == "__main__":

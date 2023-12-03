@@ -16,7 +16,7 @@ __all__ = ['Dict_Of_sitesAltitudes',
            'sanitizeString',
            'validateObsName', 
            'is_obssite', 
-           'ObsAtmo']
+           'ObsAtmo','ObsAtmoPressure','ObsAtmoGrid']
 
 
 # preselected sites
@@ -181,7 +181,7 @@ class ObsAtmoGrid:
     :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
     """
 
-    def __init__(self, obs_str="LSST"):
+    def __init__(self, obs_str = "LSST" ):
         """
         Initialize the class for data point files from which the 2D and 3D grids are created.
         Interpolation are calculated from the scipy RegularGridInterpolator() function
@@ -217,7 +217,7 @@ class ObsAtmoGrid:
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
         else:
-            print(f"{obs_tag} is OK")
+            print(f"{obs_str} site name validated as {obs_tag} observatory")
             self.OBS_tag = obs_tag
 
 
@@ -502,7 +502,7 @@ class ObsAtmoPressure(ObsAtmoGrid):
         :rtype: object of class `ObsAtmoPressure`
 
         """
-        ObsAtmoGrid.__init__(self, obs_str=obs_str)
+        ObsAtmoGrid.__init__(self, obs_str = obs_str)
 
         self.pressure = pressure
         #self.refpressure = Dict_Of_sitesPressures[obs_str]
