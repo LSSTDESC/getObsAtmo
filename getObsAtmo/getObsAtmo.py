@@ -7,7 +7,16 @@ import os
 import sys
 
 
-__all__ = ['get_obssite_keys', 'is_obssite', 'ObsAtmo']
+__all__ = ['Dict_Of_sitesAltitudes',
+           'Dict_Of_sitesPressures',
+           'Dict_Of_sitesAliases',
+           'file_data_dict',
+           '_getPackageDir',
+           'get_obssite_keys',
+           'sanitizeString',
+           'validateObsName', 
+           'is_obssite', 
+           'ObsAtmo','ObsAtmoPressure','ObsAtmoGrid']
 
 
 # preselected sites
@@ -26,6 +35,14 @@ Dict_Of_sitesPressures = {'LSST': 731.50433,
                           'OMK': 600.17224,
                           'OSL': 1013.000,
                           }
+
+Dict_Of_sitesAliases = {'LSST': ['Rubin','Rubin Observatory','Auxtel'],
+                        'CTIO': ["Cerro Tololo"],
+                        'OHP': ["Observatoire de Haute Provence"],
+                        'PDM': ["Pic du Midi","Observatoire du Pic du Midi"],
+                        'OMK': ["Mauna Kea","Mauna Kea Observatory"],
+                        'OSL': ["Sea Level","Sea Level Observatory"]
+                        }
 
 file_data_dict = {
     "info": "atmospherictransparencygrid_params.pickle",
@@ -67,10 +84,27 @@ def getObsSiteDataFrame():
         df.loc[key] = pd.Series({'altitude': Dict_Of_sitesAltitudes[key], 'pressure': Dict_Of_sitesPressures[key]})
     return df
 
-
-def sanitizeString(label):
+def sanitizeString(label) -> str:
     """This method sanitizes the site label."""
     return label.upper().replace(' ', '')
+
+def validateObsName(obssitename) -> str :
+    """Validate if the obsite name is a valid observation site
+
+    :param obssitename: observatory site name including a possible alias
+    :type obssitename: str
+    :return: valid obssite key label
+    :rtype: str or None  
+    """
+
+    sitename = sanitizeString(obssitename)
+    for key_site, listnames in Dict_Of_sitesAliases.items():
+        sanit_listname = list(map(lambda x: sanitizeString(x), listnames))
+        if sitename in sanit_listname or sitename == key_site:
+            return key_site
+    return None
+
+
 
 
 def get_obssite_keys(obs_label):
@@ -122,7 +156,14 @@ def is_obssite(obs_label):
     >>> is_obssite("OHP")
     True
     """
-    return np.any(get_obssite_keys(sanitizeString(obs_label)))
+
+    #return np.any(get_obssite_keys(sanitizeString(obs_label)))
+    obs_tag = validateObsName(obs_label)
+
+    if obs_tag is None:
+        return False
+    else:
+        return np.any(get_obssite_keys(obs_tag))
 
 
 class ObsAtmoGrid:
@@ -140,7 +181,7 @@ class ObsAtmoGrid:
     :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
     """
 
-    def __init__(self, obs_str="LSST"):
+    def __init__(self, obs_str = "LSST" ):
         """
         Initialize the class for data point files from which the 2D and 3D grids are created.
         Interpolation are calculated from the scipy RegularGridInterpolator() function
@@ -161,12 +202,24 @@ class ObsAtmoGrid:
 
         """
         self.OBS_tag = ""
-        if obs_str in Dict_Of_sitesAltitudes.keys():
-            self.OBS_tag = obs_str
-        else:
+
+        #if obs_str in Dict_Of_sitesAltitudes.keys():
+        #    self.OBS_tag = obs_str
+        #else:
+        #    raise ValueError(f"Observatory {obs_str} not in preselected observation sites.\n "
+        #                     f"This site {obs_str} must be added in libradtranpy preselected sites "
+        #                     f"and generate corresponding scattering and absorption profiles.")
+
+        obs_tag = validateObsName(obs_str)
+
+        if obs_tag is None:
             raise ValueError(f"Observatory {obs_str} not in preselected observation sites.\n "
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
+        else:
+            print(f"{obs_str} site name validated as {obs_tag} observatory")
+            self.OBS_tag = obs_tag
+
 
         self.Name = f"Atmospheric emulator ObsAtmoGrid for observation site {self.OBS_tag}"
 
@@ -449,10 +502,13 @@ class ObsAtmoPressure(ObsAtmoGrid):
         :rtype: object of class `ObsAtmoPressure`
 
         """
-        ObsAtmoGrid.__init__(self, obs_str=obs_str)
+        ObsAtmoGrid.__init__(self, obs_str = obs_str)
 
         self.pressure = pressure
-        self.refpressure = Dict_Of_sitesPressures[obs_str]
+        #self.refpressure = Dict_Of_sitesPressures[obs_str]
+        self.refpressure = Dict_Of_sitesPressures[self.OBS_tag]
+
+        
         self.pressureratio = self.pressure / self.refpressure
         if pressure == 0.0:
             self.pressureratio = 1
@@ -567,7 +623,11 @@ class ObsAtmo(ObsAtmoPressure):
 
         """
         ObsAtmoPressure.__init__(self, obs_str=obs_str, pressure=pressure)
-        self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
+        #self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
+        self.Name = f"Atmospheric emulator ObsAtmo for observation site {self.OBS_tag}"
+
+       
+
 
     def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.2, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
