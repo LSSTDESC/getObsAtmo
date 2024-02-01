@@ -629,7 +629,7 @@ class ObsAtmo(ObsAtmoPressure):
        
 
 
-    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.2, xscale="linear", yscale="linear"):
+    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
         
         :param am: the airmass, default set to 1.0
