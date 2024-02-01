@@ -366,7 +366,7 @@ class ObsAtmoGrid:
 
         return transm
 
-    def GetAerosolsTransparencies(self, wl, am, tau=0., beta=1.2):
+    def GetAerosolsTransparencies(self, wl, am, tau=0., beta=1.4):
         """
         Compute transmission due to aerosols.
         A simple model of aerosols is assumed based on one component with one
@@ -394,7 +394,7 @@ class ObsAtmoGrid:
         transm = np.exp(-exponent)
         return transm
 
-    def GetAllTransparencies(self, wl, am, pwv, oz, tau=0., beta=1.2, flagRayleigh=True, flagO2abs=True, flagPWVabs=True,
+    def GetAllTransparencies(self, wl, am, pwv, oz, tau=0., beta=1.4, flagRayleigh=True, flagO2abs=True, flagPWVabs=True,
                              flagOZabs=True, flagAerosols=True):
         """
         Combine interpolated libradtran transmission with analytical expression for the
@@ -629,7 +629,7 @@ class ObsAtmo(ObsAtmoPressure):
        
 
 
-    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.2, xscale="linear", yscale="linear"):
+    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear"):
         """Plot ObsAtmo transmission
         
         :param am: the airmass, default set to 1.0
