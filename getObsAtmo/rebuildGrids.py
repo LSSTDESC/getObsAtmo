@@ -15,6 +15,7 @@ import pickle
 from scipy import interpolate
 from libradtranpy import  libsimulateVisible
 import sys,getopt
+from joblib import Parallel, delayed
 
 import ast
 import numbers 
@@ -321,106 +322,76 @@ if __name__ == "__main__":
     data_OZabs = np.zeros((NWLBIN,NAM,NOZ))
     
 
+    def process_simulation(am, pwv, oz, proc_str, OBS_tag):
+        path, thefile = libsimulateVisible.ProcessSimulation(am, pwv, oz, 0, prof_str='us', proc_str=proc_str, cloudext=0.0, altitude_str=OBS_tag, FLAG_VERBOSE=False)
+        data = np.loadtxt(os.path.join(path, thefile))
+        f = interpolate.interp1d(x=data[:, 0], y=data[:, 1], fill_value="extrapolate")
+        atm = f(WL)
+        return atm
+
     ##########################################
     # Simulation of Rayleigh scattering
     ##############################################
 
-    # note we call function ProcessSimulation with proc_str='sc' which mean scattering only
-    # set pwv and ozone to zero (no need here)    
-    pwv= 0
+    pwv = 0
     oz = 0
-   
-    for idx,am in enumerate(airmasses):
-        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='sc',cloudext=0.0, altitude_str = OBS_tag,FLAG_VERBOSE=False)
-        data = np.loadtxt(os.path.join(path,thefile))
-        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-        atm=f(WL)
-        data_rayleigh[:,idx]=atm
-    
-    np.save(file1_out,data_rayleigh, allow_pickle=False)
 
-    
+    results_rayleigh = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'sc', OBS_tag) for am in airmasses)
+    for idx, atm in enumerate(results_rayleigh):
+        data_rayleigh[:, idx] = atm
+
+    np.save(file1_out, data_rayleigh, allow_pickle=False)
+
     ##########################################
     # Simulation of O2 absorption
     ##############################################
-    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-    # set pwv and ozone to zero (no need here)
+
     pwv = 0.0
     oz = 0.0
-
 
     print("======================================")
     print("Simulation of O2 sample")
     print("======================================")
 
-    for idx,am in enumerate(airmasses):
-        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0,altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-        data = np.loadtxt(os.path.join(path,thefile))
-        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-        atm=f(WL)
-        data_O2abs[:,idx]=atm
+    results_O2abs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+    for idx, atm in enumerate(results_O2abs):
+        data_O2abs[:, idx] = atm
 
-    np.save(file2_out,data_O2abs, allow_pickle=False)
+    np.save(file2_out, data_O2abs, allow_pickle=False)
     print(f"...... O2 abs file {file2_out} written")
-
-        
 
     ##########################################
     # Simulation of H2O absorption
     ##############################################
 
-    # ## Precipitable water vapor
     print("======================================")
     print("Simulation of PWV sample")
     print("======================================")
 
-    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-    # we cut ozone
-    # however we cannot cut O2 absorption
-
     oz = 0.0
-    for idx_pwv,pwv in enumerate(pwvs):
-        data_slice=np.zeros((NWLBIN,NAM))
-        for idx_am,am in enumerate(airmasses):     
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-            atm=f(WL)
-            data_slice[:,idx_am]=atm
-        # remove O2 absorption in H2O absorption profile
-        data_slice /=data_O2abs
-        data_H2Oabs[:,:,idx_pwv] = data_slice
+    for idx_pwv, pwv in enumerate(pwvs):
+        results_H2Oabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+        data_slice = np.array(results_H2Oabs).T
+        data_slice /= data_O2abs  # remove O2 absorption in H2O absorption profile
+        data_H2Oabs[:, :, idx_pwv] = data_slice
 
-    np.save(file3_out,data_H2Oabs,allow_pickle=False)
+    np.save(file3_out, data_H2Oabs, allow_pickle=False)
     print(f"...... H2O abs file {file3_out} written")
-       
-
 
     ##########################################
     # Simulation of Ozone absorption
     ##############################################
 
     print("======================================")
-    print(" Simulation of Ozone sample" )
+    print(" Simulation of Ozone sample")
     print("======================================")
 
-    # note we call function ProcessSimulation with proc_str='ab' which mean absorption only
-    # we remove pwv absorption
-    # however we cannot cut O2 absorption
-    pwv=0.0
-    for idx_oz,oz in enumerate(ozs):
-        data_slice=np.zeros((NWLBIN,NAM))
-        for idx_am,am in enumerate(airmasses):     
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
-            atm=f(WL)
-            data_slice[:,idx_am]=atm
-        # remove O2 profile from ozone profile
-        data_slice/=data_O2abs
-        data_OZabs[:,:,idx_oz] = data_slice
+    pwv = 0.0
+    for idx_oz, oz in enumerate(ozs):
+        results_OZabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+        data_slice = np.array(results_OZabs).T
+        data_slice /= data_O2abs  # remove O2 profile from ozone profile
+        data_OZabs[:, :, idx_oz] = data_slice
 
-    np.save(file4_out,data_OZabs, allow_pickle=False)
+    np.save(file4_out, data_OZabs, allow_pickle=False)
     print(f"...... O3 abs file {file4_out} written")
-
-        
