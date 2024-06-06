@@ -217,7 +217,7 @@ class ObsAtmoGrid:
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
         else:
-            print(f"{obs_str} site name validated as {obs_tag} observatory")
+            # print(f"{obs_str} site name validated as {obs_tag} observatory")
             self.OBS_tag = obs_tag
 
 

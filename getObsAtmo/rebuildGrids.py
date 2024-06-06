@@ -11,6 +11,7 @@ import numpy as np
 from itertools import cycle, islice
 import copy
 import pickle
+import argparse
 
 from scipy import interpolate
 from libradtranpy import  libsimulateVisible
@@ -113,35 +114,25 @@ def decode_args(arg_str):
 if __name__ == "__main__":
 
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:],"hs:a:v:o:",["s=","a=","v=","o="])
-    except getopt.GetoptError:
-        print(' Exception bad getopt with :: '+sys.argv[0]+ ' -s<observation-site-string> -a <airmassmin,airmassmax,nbins> -v <pwvmin,pwvmax,nbins> -o <ozmin,ozmax,nbins>' )
-        sys.exit(2)
+    # Create the parser
+    parser = argparse.ArgumentParser(description='Process some parameters.')
 
-    #print('opts = ',opts)
-    #print('args = ',args)
-        
-     
-    alt_str = ""
-    am_str  = ""
-    pwv_str = ""
-    oz_str  = ""
+    # Define the arguments
+    parser.add_argument('-s', '--site', type=str, help='Observation site string')
+    parser.add_argument('-a', '--airmass', type=str, help='Airmass min, max, nbins')
+    parser.add_argument('-v', '--pwv', type=str, help='PWV min, max, nbins')
+    parser.add_argument('-o', '--oz', type=str, help='Ozone min, max, nbins')
+    parser.add_argument('-p', '--profile', type=str, help='Profile name')
 
-    for opt, arg in opts:
-        if opt == '-h':
-            usage()
-            sys.exit()
-        elif opt in ("-s", "--site"):
-            alt_str = arg.upper()
-        elif opt in ("-a", "--airmass"):
-            am_str = arg
-        elif opt in ("-v", "--pwv"):
-            pwv_str = arg
-        elif opt in ("-o", "--oz"):
-            oz_str = arg
-        else:
-            msg =f"Unknown option {opt} = {arg}"
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Assign the arguments to variables
+    alt_str = args.site.upper() if args.site else ""
+    am_str = args.airmass if args.airmass else ""
+    pwv_str = args.pwv if args.pwv else ""
+    oz_str = args.oz if args.oz else ""
+    prof_str = args.profile if args.profile else ""
         
     if alt_str in Dict_Of_sitesAltitudes.keys():
         OBS_tag = alt_str
@@ -164,7 +155,6 @@ if __name__ == "__main__":
         oz_array = decode_args(oz_str)
     else:
         oz_array=np.array([])
-
     
 
     ########################
@@ -172,11 +162,11 @@ if __name__ == "__main__":
     ########################
 
 
-    file0_out = f"{OBS_tag}_atmospherictransparencygrid_params.pickle"
-    file1_out = f"{OBS_tag}_atmospherictransparencygrid_rayleigh.npy"
-    file2_out = f"{OBS_tag}_atmospherictransparencygrid_O2abs.npy"
-    file3_out = f"{OBS_tag}_atmospherictransparencygrid_PWVabs.npy"
-    file4_out = f"{OBS_tag}_atmospherictransparencygrid_OZabs.npy"
+    file0_out = f"{OBS_tag}_{prof_str}_atmospherictransparencygrid_params.pickle"
+    file1_out = f"{OBS_tag}_{prof_str}_atmospherictransparencygrid_rayleigh.npy"
+    file2_out = f"{OBS_tag}_{prof_str}_atmospherictransparencygrid_O2abs.npy"
+    file3_out = f"{OBS_tag}_{prof_str}_atmospherictransparencygrid_PWVabs.npy"
+    file4_out = f"{OBS_tag}_{prof_str}_atmospherictransparencygrid_OZabs.npy"
     
 
     ####################
@@ -322,10 +312,12 @@ if __name__ == "__main__":
     data_OZabs = np.zeros((NWLBIN,NAM,NOZ))
     
 
-    def process_simulation(am, pwv, oz, proc_str, OBS_tag):
-        path, thefile = libsimulateVisible.ProcessSimulation(am, pwv, oz, 0, prof_str='us', proc_str=proc_str, cloudext=0.0, altitude_str=OBS_tag, FLAG_VERBOSE=False)
-        data = np.loadtxt(os.path.join(path, thefile))
-        f = interpolate.interp1d(x=data[:, 0], y=data[:, 1], fill_value="extrapolate")
+    def process_simulation(am, pwv, oz, prof_str, proc_str, OBS_tag):
+        # path, thefile = libsimulateVisible.ProcessSimulation(am, pwv, oz, 0, prof_str='us', proc_str=proc_str, cloudext=0.0, altitude=OBS_tag, FLAG_VERBOSE=False)
+        print(prof_str)
+        wl, atm = libsimulateVisible.ProcessSimulation(am, pwv, oz, 0, prof_str=prof_str, proc_str=proc_str, cloudext=0.0, altitude=OBS_tag, FLAG_VERBOSE=False)
+        # data = np.loadtxt(os.path.join(path, thefile))
+        f = interpolate.interp1d(x=wl, y=atm, fill_value="extrapolate")
         atm = f(WL)
         return atm
 
@@ -336,7 +328,7 @@ if __name__ == "__main__":
     pwv = 0
     oz = 0
 
-    results_rayleigh = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'sc', OBS_tag) for am in airmasses)
+    results_rayleigh = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, prof_str, 'sc', OBS_tag) for am in airmasses)
     for idx, atm in enumerate(results_rayleigh):
         data_rayleigh[:, idx] = atm
 
@@ -353,7 +345,7 @@ if __name__ == "__main__":
     print("Simulation of O2 sample")
     print("======================================")
 
-    results_O2abs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+    results_O2abs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, prof_str, 'ab', OBS_tag) for am in airmasses)
     for idx, atm in enumerate(results_O2abs):
         data_O2abs[:, idx] = atm
 
@@ -370,7 +362,7 @@ if __name__ == "__main__":
 
     oz = 0.0
     for idx_pwv, pwv in enumerate(pwvs):
-        results_H2Oabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+        results_H2Oabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, prof_str, 'ab', OBS_tag) for am in airmasses)
         data_slice = np.array(results_H2Oabs).T
         data_slice /= data_O2abs  # remove O2 absorption in H2O absorption profile
         data_H2Oabs[:, :, idx_pwv] = data_slice
@@ -388,7 +380,7 @@ if __name__ == "__main__":
 
     pwv = 0.0
     for idx_oz, oz in enumerate(ozs):
-        results_OZabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, 'ab', OBS_tag) for am in airmasses)
+        results_OZabs = Parallel(n_jobs=-1, backend='multiprocessing')(delayed(process_simulation)(am, pwv, oz, prof_str, 'ab', OBS_tag) for am in airmasses)
         data_slice = np.array(results_OZabs).T
         data_slice /= data_O2abs  # remove O2 profile from ozone profile
         data_OZabs[:, :, idx_oz] = data_slice
