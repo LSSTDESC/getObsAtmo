@@ -104,9 +104,6 @@ def validateObsName(obssitename) -> str :
             return key_site
     return None
 
-
-
-
 def get_obssite_keys(obs_label):
     """Return the DataFrame keys if an observation site name corresponds to a an entry
     in the tables.
@@ -181,7 +178,7 @@ class ObsAtmoGrid:
     :type obs_label: string among 'LSST','CTIO','OHP','PDM','OMK','OSL'
     """
 
-    def __init__(self, obs_str = "LSST" ):
+    def __init__(self, obs_str = "LSST", model = "us"):
         """
         Initialize the class for data point files from which the 2D and 3D grids are created.
         Interpolation are calculated from the scipy RegularGridInterpolator() function
@@ -202,6 +199,7 @@ class ObsAtmoGrid:
 
         """
         self.OBS_tag = ""
+        self.model = model
 
         #if obs_str in Dict_Of_sitesAltitudes.keys():
         #    self.OBS_tag = obs_str
@@ -228,14 +226,9 @@ class ObsAtmoGrid:
         self.info_params = {}
 
         # load all data files (training and test)
-        filename = os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["info"])
+        filename = os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["info"])
         with open(filename, 'rb') as f:
             self.info_params = pickle.load(f)
-
-        data_rayleigh = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_rayleigh"]))
-        data_O2abs = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_o2abs"]))
-        data_PWVabs = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_pwvabs"]))
-        data_OZabs = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_ozabs"]))
 
         # setup training dataset (those used for interpolation)
         self.WLMIN = self.info_params["WLMIN"]
@@ -266,15 +259,34 @@ class ObsAtmoGrid:
         # constant parameters defined for aerosol formula
         self.lambda0 = 500.
         self.tau0 = 1.
+        
+        # Load grid files
+        self.load_grid_files(display=False)
+        # Create interpolation functions
+        self.get_interp_functions()
 
-        # interpolation is done over training dataset
-        self.func_rayleigh = RegularGridInterpolator((self.WL, self.AIRMASS), data_rayleigh)
-        self.func_O2abs = RegularGridInterpolator((self.WL, self.AIRMASS), data_O2abs)
-        self.func_PWVabs = RegularGridInterpolator((self.WL, self.AIRMASS, self.PWV), data_PWVabs)
-        self.func_OZabs = RegularGridInterpolator((self.WL, self.AIRMASS, self.OZ), data_OZabs)
 
     def __str__(self):
         return self.Name
+    
+    def load_grid_files(self, display=False):
+        if display:            
+            print(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_rayleigh"]))
+            print(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_o2abs"]))
+            print(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_pwvabs"]))
+            print(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_ozabs"]))   
+
+        self.data_rayleigh = np.load(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_rayleigh"]))
+        self.data_O2abs = np.load(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_o2abs"]))
+        self.data_PWVabs = np.load(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_pwvabs"]))
+        self.data_OZabs = np.load(os.path.join(self.path, self.OBS_tag + "_" + self.model + "_" + file_data_dict["data_ozabs"]))
+        
+    def get_interp_functions(self):
+        # interpolation is done over training dataset
+        self.func_rayleigh = RegularGridInterpolator((self.WL, self.AIRMASS), self.data_rayleigh)
+        self.func_O2abs = RegularGridInterpolator((self.WL, self.AIRMASS), self.data_O2abs)
+        self.func_PWVabs = RegularGridInterpolator((self.WL, self.AIRMASS, self.PWV), self.data_PWVabs)
+        self.func_OZabs = RegularGridInterpolator((self.WL, self.AIRMASS, self.OZ), self.data_OZabs)
      
     #        
     # functions to access to interpolated transparency functions on training dataset
@@ -482,7 +494,7 @@ class ObsAtmoPressure(ObsAtmoGrid):
 
     """
 
-    def __init__(self, obs_str="LSST", pressure=0):
+    def __init__(self, obs_str="LSST", pressure=0, model='us'):
         """
         Initialize the class for data point files from which the 2D and 3D grids are created.
         Interpolation are calculated from the scipy RegularGridInterpolator() function
@@ -502,7 +514,7 @@ class ObsAtmoPressure(ObsAtmoGrid):
         :rtype: object of class `ObsAtmoPressure`
 
         """
-        ObsAtmoGrid.__init__(self, obs_str = obs_str)
+        ObsAtmoGrid.__init__(self, obs_str = obs_str, model = model)
 
         self.pressure = pressure
         #self.refpressure = Dict_Of_sitesPressures[obs_str]
@@ -595,7 +607,7 @@ class ObsAtmo(ObsAtmoPressure):
         [0.72485491 0.97330618 0.85675228]
     """
 
-    def __init__(self, obs_str="LSST", pressure=0):
+    def __init__(self, obs_str="LSST", pressure=0, model='us'):
         """
         Initialize the ``ObsAtmo`` 
 
@@ -622,7 +634,7 @@ class ObsAtmo(ObsAtmoPressure):
             Atmospheric emulator ObsAtmo for observation site LSST
 
         """
-        ObsAtmoPressure.__init__(self, obs_str=obs_str, pressure=pressure)
+        ObsAtmoPressure.__init__(self, obs_str=obs_str, pressure=pressure, model=model)
         #self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
         self.Name = f"Atmospheric emulator ObsAtmo for observation site {self.OBS_tag}"
 

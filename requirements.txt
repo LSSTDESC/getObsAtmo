@@ -10,4 +10,4 @@ numpydoc
 nbsphinx
 pydot
 graphviz
-
+joblib
