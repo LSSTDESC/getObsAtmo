@@ -2,6 +2,7 @@
 # coding: utf-8
 # # Generate atmospheric parameter grids of transmissions 
 # for getObsAtmo emulator
+# last update 2024-08-27
 ####################################
 
 # Import some generally useful packages
@@ -49,8 +50,8 @@ def usage():
     print('        -v  : precipitable water vapor ')
     print('        -o  : ozone ')
     print('        --------------------------------------------------------')
-    print(' example : python ',  sys.argv[0], ' -s LSST -a 1,2.6,0.1 -v 0,10.25,0.25 -o 0.,625.0,25.' )
-    print(' or      : python ',  sys.argv[0], ' -s LSST -a 1,2.5,16   -v 0,10,41  -o  0.,600.0,25 ' )
+    print(' example : python ',  sys.argv[0], ' -s LSST -a 1,2.6,0.1 -v 0,15.25,0.25 -o 0.,625.0,25.' )
+    print(' or      : python ',  sys.argv[0], ' -s LSST -a 1,2.5,16  -v 0,15.25,61  -o  0.,625.0,25 ' )
     print('\t Arguments actually provided : ')
     print('\t \t Number of arguments:', len(sys.argv), 'arguments.')
     print('\t \t Argument List:', str(sys.argv))
@@ -249,7 +250,7 @@ if __name__ == "__main__":
 
     if pwv_str == "":
         PWVMIN = 0.0
-        PWVMAX = 10.24
+        PWVMAX = 25.50
         DPWV = 0.25
         pwvs = np.arange(PWVMIN,PWVMAX,DPWV)
         PWVMAX =pwvs.max()
@@ -329,11 +330,12 @@ if __name__ == "__main__":
     # set pwv and ozone to zero (no need here)    
     pwv= 0
     oz = 0
+
+    
    
     for idx,am in enumerate(airmasses):
-        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='sc',cloudext=0.0, altitude_str = OBS_tag,FLAG_VERBOSE=False)
-        data = np.loadtxt(os.path.join(path,thefile))
-        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+        wl, atm = libsimulateVisible.ProcessSimulation(am,pwv,oz,press_num=0, aer_num=0,angstrom_exponent_num=1.4,prof_str='us',proc_str='sc',cloudext=0.0, altitude = OBS_tag,aer_lambda0=500.,FLAG_VERBOSE=False)
+        f = interpolate.interp1d(x=wl, y=atm,fill_value="extrapolate")
         atm=f(WL)
         data_rayleigh[:,idx]=atm
     
@@ -354,9 +356,8 @@ if __name__ == "__main__":
     print("======================================")
 
     for idx,am in enumerate(airmasses):
-        path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0,altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-        data = np.loadtxt(os.path.join(path,thefile))
-        f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+        wl, atm = libsimulateVisible.ProcessSimulation(am,pwv,oz,press_num=0, aer_num=0,angstrom_exponent_num=1.4,prof_str='us',proc_str='ab',cloudext=0.0,altitude = OBS_tag ,FLAG_VERBOSE=False)
+        f = interpolate.interp1d(x=wl, y=atm,fill_value="extrapolate")
         atm=f(WL)
         data_O2abs[:,idx]=atm
 
@@ -381,10 +382,9 @@ if __name__ == "__main__":
     oz = 0.0
     for idx_pwv,pwv in enumerate(pwvs):
         data_slice=np.zeros((NWLBIN,NAM))
-        for idx_am,am in enumerate(airmasses):     
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+        for idx_am,am in enumerate(airmasses):    
+            wl,atm = libsimulateVisible.ProcessSimulation(am,pwv,oz,press_num=0, aer_num=0,angstrom_exponent_num=1.4,prof_str='us',proc_str='ab',cloudext=0.0, altitude = OBS_tag ,FLAG_VERBOSE=False)
+            f = interpolate.interp1d(x=wl, y=atm,fill_value="extrapolate")
             atm=f(WL)
             data_slice[:,idx_am]=atm
         # remove O2 absorption in H2O absorption profile
@@ -411,9 +411,8 @@ if __name__ == "__main__":
     for idx_oz,oz in enumerate(ozs):
         data_slice=np.zeros((NWLBIN,NAM))
         for idx_am,am in enumerate(airmasses):     
-            path,thefile = libsimulateVisible.ProcessSimulation(am,pwv,oz,0,prof_str='us',proc_str='ab',cloudext=0.0, altitude_str = OBS_tag ,FLAG_VERBOSE=False)
-            data = np.loadtxt(os.path.join(path,thefile))
-            f = interpolate.interp1d(x=data[:,0], y=data[:,1],fill_value="extrapolate")
+            wl,atm = libsimulateVisible.ProcessSimulation(am,pwv,oz,press_num=0, aer_num=0,angstrom_exponent_num=1.4,prof_str='us',proc_str='ab',cloudext=0.0, altitude = OBS_tag ,FLAG_VERBOSE=False)
+            f = interpolate.interp1d(x=wl, y=atm,fill_value="extrapolate")
             atm=f(WL)
             data_slice[:,idx_am]=atm
         # remove O2 profile from ozone profile
