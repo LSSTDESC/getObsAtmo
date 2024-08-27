@@ -45,8 +45,8 @@ In a shell :
 |        -v  : precipitable water vapor
 |        -o  : ozone
 |        --------------------------------------------------------
-| example : python  rebuildGrids.py  -s LSST -a 1,2.6,0.1 -v 0,10.25,0.25 -o 0.,625.0,25.
-| or      : python  rebuildGrids.py  -s LSST -a 1,2.5,16   -v 0,10,41  -o  0.,600.0,25
+| example : python  rebuildGrids.py  -s LSST -a 1,2.6,0.1 -v 0,15.25,0.25 -o 0.,625.0,25.
+| or      : python  rebuildGrids.py  -s LSST -a 1,2.5,16   -v 0,15.25,61  -o  0.,625.0,25
 |	 Arguments actually provided :
 |	 	 Number of arguments: 2 arguments.
 |	 	 Argument List: ['rebuildGrids.py', '-h']
