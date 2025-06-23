@@ -19,29 +19,47 @@ __all__ = ['Dict_Of_sitesAltitudes',
            'ObsAtmo','ObsAtmoPressure','ObsAtmoGrid']
 
 
-# preselected sites
-Dict_Of_sitesAltitudes = {'LSST': 2.663,
-                          'CTIO': 2.207,
-                          'OHP': 0.65,
-                          'PDM': 2.8905,
-                          'OMK': 4.205,
-                          'OSL': 0.000,
-                          }
+# preselected sites 
+Dict_Of_sitesAltitudes = {'LSST':2.663, # Rubin-LSST
+                          'CTIO':2.207, # Cerro Tololo Inter-American Observatory
+                          'OHP':0.65, # Observatoire de Haute Provence
+                          'ZTF': 1.712, # Palomar Observatory
+                          'VLT': 2.635, # Cerro Paranal (ESO)
+                          'PDM':2.8905, # Observatoire du Pic du Midi
+                          'OMK':4.205,  # Mauna Kea
+                          'OSL':0,      # Sea Level
+                           }
 # pressure calculated by libradtran
-Dict_Of_sitesPressures = {'LSST': 731.50433,
-                          'CTIO': 774.6052,
-                          'OHP': 937.22595,
-                          'PDM': 710.90637,
-                          'OMK': 600.17224,
-                          'OSL': 1013.000,
-                          }
+Dict_Of_sitesPressures = {'LSST':731.50433,
+                          'CTIO':774.6052,
+                          'OHP':937.22595,
+                          'ZTF':823.60004, # Palomar Observatory
+                          'VLT':734.08038, # Cerro Paranal (ESO)
+                          'PDM':710.90637,
+                          'OMK':600.17224,
+                          'OSL':1013.000,
+                        }
+
+Dict_Of_sitesTags = {'LSST':'LS',
+                     'CTIO':'CT',
+                     'OHP':'OH',
+                     'ZTF':'ZT',
+                     'VLT':'VL',
+                     'PDM':'PM',
+                     'OMK':'MK',
+                     'OSL':'SL',
+                    }
+
+
 
 Dict_Of_sitesAliases = {'LSST': ['Rubin','Rubin Observatory','Auxtel'],
                         'CTIO': ["Cerro Tololo"],
                         'OHP': ["Observatoire de Haute Provence"],
                         'PDM': ["Pic du Midi","Observatoire du Pic du Midi"],
                         'OMK': ["Mauna Kea","Mauna Kea Observatory"],
-                        'OSL': ["Sea Level","Sea Level Observatory"]
+                        'OSL': ["Sea Level","Sea Level Observatory"],
+                        'ZTF': ["Palomar","Palomar Observatory"],
+                        'VLT': ["Cerro Paranal","Very Large Telescope","Paranal Observatory","Paranal"],
                         }
 
 file_data_dict = {

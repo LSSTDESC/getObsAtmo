@@ -3,6 +3,7 @@
 # # Generate atmospheric parameter grids of transmissions 
 # for getObsAtmo emulator
 # last update 2024-08-27
+# last update 2025-06-14
 ####################################
 
 # Import some generally useful packages
@@ -28,6 +29,8 @@ warnings.filterwarnings('ignore')
 Dict_Of_sitesAltitudes = {'LSST':2.663, # Rubin-LSST
                           'CTIO':2.207, # Cerro Tololo Inter-American Observatory
                           'OHP':0.65, # Observatoire de Haute Provence
+                          'ZTF': 1.712, # Palomar Observatory
+                          'VLT': 2.635, # Cerro Paranal (ESO)
                           'PDM':2.8905, # Observatoire du Pic du Midi
                           'OMK':4.205,  # Mauna Kea
                           'OSL':0,      # Sea Level
