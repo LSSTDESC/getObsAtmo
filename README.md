@@ -1,39 +1,67 @@
 # getObsAtmo
 
-Python package to emulate atmospheric transparency simulation for different observation sites.
+Python package to emulate atmospheric transparency simulation for different observation sites (version 0.2.0, October 2025).
 
 Transmission profiles depending on wavelength and airmass for Rayleigh scattering and atmospheric components absorption like Oxygen,
 water vapor or Ozon were extracted from [libradtran](http://www.libradtran.org).
-Those transmission profiles are located in `obsatmo_data`.
+Those transmission profiles are located in `getObsAtmo/obsatmo_data`.
 In addition to libradtran interpolated gridded profiles, an analytic expression scattering for single component aerosol scattering is provided.
 
-
-# Download
-
+## Download
 
 ```bash
 git clone https://github.com/LSSTDESC/getObsAtmo.git
 ```
 
+## Installation
 
-# Installation
-
-
-``` bash
+```bash
 cd getObsAtmo
-python setup.py install
+pip install .
 ```
 
+or
 
-# tests
+```bash
+pip install -e .
+```
 
+or if you want the documentation
+
+```bash
+pip install .[docs]
+```
+
+or
+
+```bash
+pip install -e .[docs]
+```
+
+## tests
 
 ```bash
 python -m unittest
 ```
 
-# Example
+or
 
+```bash
+ python -m unittest tests/test_getObsAtmo.py
+```
+
+## Documentation
+
+After the installation of sphinx aand `pip install .[docs]`, you can build the documentation with:
+
+```bash
+cd docs
+make html
+```
+
+The documentation will be in `docs/build/html/index.html`
+
+## Usage
 
 ```python
 
@@ -51,9 +79,10 @@ print("transmissions    \t = ",transm)
 emul.plot_transmission()  # plot the transmission
 ```
 
-# Documentation
+## Example notebooks
+
+Example notebooks are provided in the `examples/notebooks` directory.
+
+## Online Documentation
 
 The detailed documentation can be used in https://getobsatmo.readthedocs.io/en/latest/index.html
-
-
-
