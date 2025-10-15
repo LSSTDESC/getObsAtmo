@@ -81,6 +81,8 @@ def _getPackageDir():
     """
     dirname = os.path.dirname(__file__)
     return dirname
+    
+    
 
 
 def convert_dict_to_json(data_dict: Dict[str, Any], data_json: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -163,7 +165,7 @@ def convert_json_to_dict(data_json: Dict[str, Any]) -> Dict[str, Any]:
     return data_dict
 
 
-def getObsSiteDataFrame():
+def get_obssite_dataframe():
     """
     Provide the list of observatories which have transmission grids
 
@@ -229,7 +231,7 @@ def get_obssite_keys(obs_label):
 
     """
     label = sanitizeString(obs_label)
-    df = getObsSiteDataFrame()
+    df = get_obssite_dataframe()
     name_index = [name.upper() for name in df.index]
     if len(name_index) > 0:
         keys = pd.Series([False] * len(df))
@@ -259,7 +261,6 @@ def is_obssite(obs_label):
     True
     """
 
-    #return np.any(get_obssite_keys(sanitizeString(obs_label)))
     obs_tag = validateObsName(obs_label)
 
     if obs_tag is None:
@@ -326,7 +327,8 @@ class ObsAtmoGrid:
         self.Name = f"Atmospheric emulator ObsAtmoGrid for observation site {self.OBS_tag}"
 
         # construct the path of input data files
-        self.path = os.path.join(_getPackageDir(), '../obsatmo_data')
+        #self.path = os.path.join(_getPackageDir(), '../obsatmo_data')
+        self.path = os.path.join(_getPackageDir(), 'obsatmo_data')
         self.info_params = {}
 
         # load all data files (training and test)
@@ -335,6 +337,9 @@ class ObsAtmoGrid:
         #with open(filename, 'rb') as f:
         #    self.info_params = pickle.load(f)
 
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"Missing JSON file: {filename}")
+        
         with open(filename, 'r') as f:
             loaded_data_json = json.load(f)
             self.info_params= convert_json_to_dict(loaded_data_json)
@@ -615,6 +620,9 @@ class ObsAtmoPressure(ObsAtmoGrid):
         #self.refpressure = Dict_Of_sitesPressures[obs_str]
         self.refpressure = Dict_Of_sitesPressures[self.OBS_tag]
 
+        if self.refpressure <= 0:
+            raise ValueError(f"Invalid reference pressure for {self.OBS_tag}: {self.refpressure}")
+        
         
         self.pressureratio = self.pressure / self.refpressure
         if pressure == 0.0:
@@ -733,10 +741,10 @@ class ObsAtmo(ObsAtmoPressure):
         #self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
         self.Name = f"Atmospheric emulator ObsAtmo for observation site {self.OBS_tag}"
 
-       
 
 
-    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear"):
+
+    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear",savepath=None):
         """Plot ObsAtmo transmission
         
         :param am: the airmass, default set to 1.0
@@ -783,7 +791,11 @@ class ObsAtmo(ObsAtmoPressure):
         # place a text box in upper left in axes coords
         ax.text(0.75, 0.05, textstr, transform=ax.transAxes, fontsize=14,
                 verticalalignment='bottom', bbox=props)
-        plt.show()
+        
+        if savepath:
+            fig.savefig(savepath, dpi=200)
+        else:
+            fig.show()
 
 
 def usage():
@@ -845,7 +857,7 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt == '-h':
             usage()
-            sys.exit()
+            sys.exit(0)
         elif opt in ("-s", "--site"):
             obs_str = arg
         elif opt in ("-p", "--pressure"):
