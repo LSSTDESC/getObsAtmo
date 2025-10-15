@@ -9,9 +9,22 @@ Installation
 
    git clone https://github.com/LSSTDESC/getObsAtmo.git
    cd getObsAtmo
-   python setup.py install
+   pip install .
    
+or 
 
+.. code-block:: bash
+   
+   cd getObsAtmo
+   pip install -e . 
+
+if one want to install the documentation and examples notebooks.
+
+.. code-block:: bash
+
+   pip install -e .[doc]
+   cd docs
+   make html
 
 About libradtran
 ----------------

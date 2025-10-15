@@ -1,16 +1,7 @@
-API Documentation
-=================
+getObsAtmo API
+==============
 
-.. automodule:: getObsAtmo
-   :members:
-
-
-.. autoclass:: getObsAtmo.ObsAtmo
+.. automodule:: getObsAtmo.getObsAtmo
     :members:
-    :no-index:
-
-.. autoclass:: getObsAtmo.ObsAtmoPressure
-    :members:
-  
-.. autoclass:: getObsAtmo.ObsAtmoGrid
-    :members:
+    :undoc-members:
+    :show-inheritance:

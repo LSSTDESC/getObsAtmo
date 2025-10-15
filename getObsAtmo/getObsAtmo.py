@@ -1,10 +1,13 @@
+# last update 2025-10-15 : use json instead of pickle
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-import pickle
+#import pickle
+import json
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import sys
+from typing import Any, Dict, Optional
 
 
 __all__ = ['Dict_Of_sitesAltitudes',
@@ -63,7 +66,8 @@ Dict_Of_sitesAliases = {'LSST': ['Rubin','Rubin Observatory','Auxtel'],
                         }
 
 file_data_dict = {
-    "info": "atmospherictransparencygrid_params.pickle",
+    #"info": "atmospherictransparencygrid_params.pickle",
+    "info": "atmospherictransparencygrid_params.json",
     "data_rayleigh": "atmospherictransparencygrid_rayleigh.npy",
     "data_o2abs": "atmospherictransparencygrid_O2abs.npy",
     "data_pwvabs": "atmospherictransparencygrid_PWVabs.npy",
@@ -77,9 +81,91 @@ def _getPackageDir():
     """
     dirname = os.path.dirname(__file__)
     return dirname
+    
+    
 
 
-def getObsSiteDataFrame():
+def convert_dict_to_json(data_dict: Dict[str, Any], data_json: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Convert a Python dictionary containing NumPy arrays into a JSON-serializable dictionary.
+
+    This function iterates over all key-value pairs in the input dictionary.
+    NumPy arrays are converted to lists, while scalar types (int, float, str, bool, None)
+    are preserved as-is. The resulting dictionary can be safely serialized using `json.dumps`.
+
+    Args:
+        data_dict (Dict[str, Any]): Input dictionary, possibly containing NumPy arrays or scalar values.
+        data_json (Optional[Dict[str, Any]]): Optional output dictionary. If provided, 
+            the converted data will be written into it. Otherwise, a new dictionary will be created.
+
+    Returns:
+        Dict[str, Any]: A dictionary where all NumPy arrays have been converted into lists,
+        ready for JSON serialization.
+
+    Raises:
+        TypeError: If a value in `data_dict` is not a supported type (NumPy array, scalar, or None).
+
+    Examples:
+        >>> import numpy as np
+        >>> data = {'array': np.array([1, 2, 3]), 'value': 42}
+        >>> json_data = convert_dict_to_json(data)
+        >>> print(json_data)
+        {'array': [1, 2, 3], 'value': 42}
+    """
+    if not isinstance(data_dict, dict):
+        raise TypeError(f"Expected a dictionary, got {type(data_dict).__name__}.")
+
+    if data_json is None:
+        data_json = {}
+
+    for key, value in data_dict.items():
+        if isinstance(value, np.ndarray):
+            data_json[key] = value.tolist()
+        elif isinstance(value, (int, float, str, bool)) or value is None:
+            data_json[key] = value
+        else:
+            raise TypeError(
+                f"Unsupported type for key '{key}': {type(value).__name__}. "
+                "Only NumPy arrays and scalar types are supported."
+            )
+
+    return data_json
+
+
+def convert_json_to_dict(data_json: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert a JSON-like dictionary into a Python dictionary where list values are converted to NumPy arrays.
+
+    This function iterates through all key-value pairs in the input dictionary. 
+    If a value is a list, it will be converted to a NumPy array. 
+    All other values are preserved as-is.
+
+    Args:
+        data_json (Dict[str, Any]): Input JSON-compatible dictionary (e.g., parsed from a JSON file).
+
+    Returns:
+        Dict[str, Any]: A dictionary where list values have been converted to NumPy arrays.
+    
+    Raises:
+        TypeError: If the input is not a dictionary.
+    """
+    if not isinstance(data_json, dict):
+        raise TypeError(f"Expected a dictionary, got {type(data_json).__name__}.")
+
+    data_dict: Dict[str, Any] = {}
+    for key, value in data_json.items():
+        if isinstance(value, list):
+            try:
+                data_dict[key] = np.array(value)
+            except Exception as e:
+                raise ValueError(f"Failed to convert list at key '{key}' to a NumPy array: {e}")
+        else:
+            data_dict[key] = value
+
+    return data_dict
+
+
+def get_obssite_dataframe():
     """
     Provide the list of observatories which have transmission grids
 
@@ -145,7 +231,7 @@ def get_obssite_keys(obs_label):
 
     """
     label = sanitizeString(obs_label)
-    df = getObsSiteDataFrame()
+    df = get_obssite_dataframe()
     name_index = [name.upper() for name in df.index]
     if len(name_index) > 0:
         keys = pd.Series([False] * len(df))
@@ -175,7 +261,6 @@ def is_obssite(obs_label):
     True
     """
 
-    #return np.any(get_obssite_keys(sanitizeString(obs_label)))
     obs_tag = validateObsName(obs_label)
 
     if obs_tag is None:
@@ -235,20 +320,29 @@ class ObsAtmoGrid:
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
         else:
-            print(f"{obs_str} site name validated as {obs_tag} observatory")
+            #print(f"{obs_str} site name validated as {obs_tag} observatory")
             self.OBS_tag = obs_tag
 
 
         self.Name = f"Atmospheric emulator ObsAtmoGrid for observation site {self.OBS_tag}"
 
         # construct the path of input data files
-        self.path = os.path.join(_getPackageDir(), '../obsatmo_data')
+        #self.path = os.path.join(_getPackageDir(), '../obsatmo_data')
+        self.path = os.path.join(_getPackageDir(), 'obsatmo_data')
         self.info_params = {}
 
         # load all data files (training and test)
         filename = os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["info"])
-        with open(filename, 'rb') as f:
-            self.info_params = pickle.load(f)
+        
+        #with open(filename, 'rb') as f:
+        #    self.info_params = pickle.load(f)
+
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"Missing JSON file: {filename}")
+        
+        with open(filename, 'r') as f:
+            loaded_data_json = json.load(f)
+            self.info_params= convert_json_to_dict(loaded_data_json)
 
         data_rayleigh = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_rayleigh"]))
         data_O2abs = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_o2abs"]))
@@ -526,6 +620,9 @@ class ObsAtmoPressure(ObsAtmoGrid):
         #self.refpressure = Dict_Of_sitesPressures[obs_str]
         self.refpressure = Dict_Of_sitesPressures[self.OBS_tag]
 
+        if self.refpressure <= 0:
+            raise ValueError(f"Invalid reference pressure for {self.OBS_tag}: {self.refpressure}")
+        
         
         self.pressureratio = self.pressure / self.refpressure
         if pressure == 0.0:
@@ -644,10 +741,10 @@ class ObsAtmo(ObsAtmoPressure):
         #self.Name = f"Atmospheric emulator ObsAtmo for observation site {obs_str}"
         self.Name = f"Atmospheric emulator ObsAtmo for observation site {self.OBS_tag}"
 
-       
 
 
-    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear"):
+
+    def plot_transmission(self, am=1.0, pwv=4.0, oz=400., tau=0.1, beta=1.4, xscale="linear", yscale="linear",savepath=None):
         """Plot ObsAtmo transmission
         
         :param am: the airmass, default set to 1.0
@@ -694,7 +791,11 @@ class ObsAtmo(ObsAtmoPressure):
         # place a text box in upper left in axes coords
         ax.text(0.75, 0.05, textstr, transform=ax.transAxes, fontsize=14,
                 verticalalignment='bottom', bbox=props)
-        plt.show()
+        
+        if savepath:
+            fig.savefig(savepath, dpi=200)
+        else:
+            fig.show()
 
 
 def usage():
@@ -756,7 +857,7 @@ if __name__ == "__main__":
     for opt, arg in opts:
         if opt == '-h':
             usage()
-            sys.exit()
+            sys.exit(0)
         elif opt in ("-s", "--site"):
             obs_str = arg
         elif opt in ("-p", "--pressure"):

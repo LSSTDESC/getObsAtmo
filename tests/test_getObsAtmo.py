@@ -6,6 +6,7 @@ from getObsAtmo import Dict_Of_sitesAltitudes,Dict_Of_sitesAliases,Dict_Of_sites
 from getObsAtmo import file_data_dict
 from getObsAtmo import _getPackageDir,sanitizeString,validateObsName,is_obssite
 from getObsAtmo import ObsAtmo,ObsAtmoPressure,ObsAtmoGrid
+import getObsAtmo
 import numpy as np 
 import os
 
@@ -19,7 +20,8 @@ class GetObsAtmoTestCase(unittest.TestCase):
         """
         installationdir = _getPackageDir()
         # construct the path of input data files
-        datapath = os.path.join(installationdir, '../obsatmo_data')
+        datapath = os.path.join(installationdir, 'obsatmo_data')
+        
         self.assertTrue(os.path.exists(datapath))
         self.assertTrue(os.path.isdir(datapath))    
 
@@ -27,7 +29,7 @@ class GetObsAtmoTestCase(unittest.TestCase):
         """Test if input data exists
         """
         installationdir = _getPackageDir()
-        datapath = os.path.join(installationdir, '../obsatmo_data')
+        datapath = os.path.join(installationdir, 'obsatmo_data')
         for obs_str in Dict_Of_sitesAltitudes.keys():
             for file_key,filenamepart in file_data_dict.items():
                 filename = obs_str + "_" + filenamepart

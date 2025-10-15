@@ -7,6 +7,8 @@
 Welcome to getObsAtmo's documentation!
 ======================================
 
+Version: |release|
+
 This is the documentation for the ``getObsAtmo``, 
 the emulator for air transmission in visible wavelength range. This emulator aims  at providing
 an atmospheric model that can be used for atmospheric monitoring and calibration at astronomic
