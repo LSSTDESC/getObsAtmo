@@ -4,6 +4,7 @@
 # for getObsAtmo emulator
 # last update 2024-08-27
 # last update 2025-06-14
+# last update 2025-10-15 : use json instead of pickle
 ####################################
 
 # Import some generally useful packages
@@ -12,7 +13,8 @@ import os
 import numpy as np
 from itertools import cycle, islice
 import copy
-import pickle
+#import pickle
+import json
 
 from scipy import interpolate
 from libradtranpy import  libsimulateVisible
@@ -23,6 +25,8 @@ import numbers
 
 import warnings
 warnings.filterwarnings('ignore')
+
+from typing import Any, Dict, Optional
 
 
 # preselected observation sites 
@@ -110,7 +114,51 @@ def decode_args(arg_str):
         array = np.arange(valmin,valmax,step)
         return array
 
+def convert_dict_to_json(data_dict: Dict[str, Any], data_json: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Convert a Python dictionary containing NumPy arrays into a JSON-serializable dictionary.
 
+    This function iterates over all key-value pairs in the input dictionary.
+    NumPy arrays are converted to lists, while scalar types (int, float, str, bool, None)
+    are preserved as-is. The resulting dictionary can be safely serialized using `json.dumps`.
+
+    Args:
+        data_dict (Dict[str, Any]): Input dictionary, possibly containing NumPy arrays or scalar values.
+        data_json (Optional[Dict[str, Any]]): Optional output dictionary. If provided, 
+            the converted data will be written into it. Otherwise, a new dictionary will be created.
+
+    Returns:
+        Dict[str, Any]: A dictionary where all NumPy arrays have been converted into lists,
+        ready for JSON serialization.
+
+    Raises:
+        TypeError: If a value in `data_dict` is not a supported type (NumPy array, scalar, or None).
+
+    Examples:
+        >>> import numpy as np
+        >>> data = {'array': np.array([1, 2, 3]), 'value': 42}
+        >>> json_data = convert_dict_to_json(data)
+        >>> print(json_data)
+        {'array': [1, 2, 3], 'value': 42}
+    """
+    if not isinstance(data_dict, dict):
+        raise TypeError(f"Expected a dictionary, got {type(data_dict).__name__}.")
+
+    if data_json is None:
+        data_json = {}
+
+    for key, value in data_dict.items():
+        if isinstance(value, np.ndarray):
+            data_json[key] = value.tolist()
+        elif isinstance(value, (int, float, str, bool)) or value is None:
+            data_json[key] = value
+        else:
+            raise TypeError(
+                f"Unsupported type for key '{key}': {type(value).__name__}. "
+                "Only NumPy arrays and scalar types are supported."
+            )
+
+    return data_json
     
 #-----------------------------------------------------------------------
 if __name__ == "__main__":
@@ -175,7 +223,7 @@ if __name__ == "__main__":
     ########################
 
 
-    file0_out = f"{OBS_tag}_atmospherictransparencygrid_params.pickle"
+    file0_out = f"{OBS_tag}_atmospherictransparencygrid_params.json"
     file1_out = f"{OBS_tag}_atmospherictransparencygrid_rayleigh.npy"
     file2_out = f"{OBS_tag}_atmospherictransparencygrid_O2abs.npy"
     file3_out = f"{OBS_tag}_atmospherictransparencygrid_PWVabs.npy"
@@ -312,9 +360,13 @@ if __name__ == "__main__":
     print("-------------------------------------------------------------------------------------------------")
 
 
-    with open(file0_out, 'wb') as handle:
-        pickle.dump(info_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    
+    #with open(file0_out, 'wb') as handle:
+    #    pickle.dump(info_params, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(file0_out, 'w') as handle:
+        data_json = convert_dict_to_json(info_params)
+        json.dump(data_json, handle, indent=4)
+
     ##############################
     # ### Data container initialisation
     ####################################

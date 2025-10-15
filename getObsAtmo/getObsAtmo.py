@@ -1,10 +1,13 @@
+# last update 2025-10-15 : use json instead of pickle
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-import pickle
+#import pickle
+import json
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import sys
+from typing import Any, Dict, Optional
 
 
 __all__ = ['Dict_Of_sitesAltitudes',
@@ -63,7 +66,8 @@ Dict_Of_sitesAliases = {'LSST': ['Rubin','Rubin Observatory','Auxtel'],
                         }
 
 file_data_dict = {
-    "info": "atmospherictransparencygrid_params.pickle",
+    #"info": "atmospherictransparencygrid_params.pickle",
+    "info": "atmospherictransparencygrid_params.json",
     "data_rayleigh": "atmospherictransparencygrid_rayleigh.npy",
     "data_o2abs": "atmospherictransparencygrid_O2abs.npy",
     "data_pwvabs": "atmospherictransparencygrid_PWVabs.npy",
@@ -77,6 +81,86 @@ def _getPackageDir():
     """
     dirname = os.path.dirname(__file__)
     return dirname
+
+
+def convert_dict_to_json(data_dict: Dict[str, Any], data_json: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Convert a Python dictionary containing NumPy arrays into a JSON-serializable dictionary.
+
+    This function iterates over all key-value pairs in the input dictionary.
+    NumPy arrays are converted to lists, while scalar types (int, float, str, bool, None)
+    are preserved as-is. The resulting dictionary can be safely serialized using `json.dumps`.
+
+    Args:
+        data_dict (Dict[str, Any]): Input dictionary, possibly containing NumPy arrays or scalar values.
+        data_json (Optional[Dict[str, Any]]): Optional output dictionary. If provided, 
+            the converted data will be written into it. Otherwise, a new dictionary will be created.
+
+    Returns:
+        Dict[str, Any]: A dictionary where all NumPy arrays have been converted into lists,
+        ready for JSON serialization.
+
+    Raises:
+        TypeError: If a value in `data_dict` is not a supported type (NumPy array, scalar, or None).
+
+    Examples:
+        >>> import numpy as np
+        >>> data = {'array': np.array([1, 2, 3]), 'value': 42}
+        >>> json_data = convert_dict_to_json(data)
+        >>> print(json_data)
+        {'array': [1, 2, 3], 'value': 42}
+    """
+    if not isinstance(data_dict, dict):
+        raise TypeError(f"Expected a dictionary, got {type(data_dict).__name__}.")
+
+    if data_json is None:
+        data_json = {}
+
+    for key, value in data_dict.items():
+        if isinstance(value, np.ndarray):
+            data_json[key] = value.tolist()
+        elif isinstance(value, (int, float, str, bool)) or value is None:
+            data_json[key] = value
+        else:
+            raise TypeError(
+                f"Unsupported type for key '{key}': {type(value).__name__}. "
+                "Only NumPy arrays and scalar types are supported."
+            )
+
+    return data_json
+
+
+def convert_json_to_dict(data_json: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert a JSON-like dictionary into a Python dictionary where list values are converted to NumPy arrays.
+
+    This function iterates through all key-value pairs in the input dictionary. 
+    If a value is a list, it will be converted to a NumPy array. 
+    All other values are preserved as-is.
+
+    Args:
+        data_json (Dict[str, Any]): Input JSON-compatible dictionary (e.g., parsed from a JSON file).
+
+    Returns:
+        Dict[str, Any]: A dictionary where list values have been converted to NumPy arrays.
+    
+    Raises:
+        TypeError: If the input is not a dictionary.
+    """
+    if not isinstance(data_json, dict):
+        raise TypeError(f"Expected a dictionary, got {type(data_json).__name__}.")
+
+    data_dict: Dict[str, Any] = {}
+    for key, value in data_json.items():
+        if isinstance(value, list):
+            try:
+                data_dict[key] = np.array(value)
+            except Exception as e:
+                raise ValueError(f"Failed to convert list at key '{key}' to a NumPy array: {e}")
+        else:
+            data_dict[key] = value
+
+    return data_dict
 
 
 def getObsSiteDataFrame():
@@ -235,7 +319,7 @@ class ObsAtmoGrid:
                              f"This site {obs_str} must be added in libradtranpy preselected sites "
                              f"and generate corresponding scattering and absorption profiles.")
         else:
-            print(f"{obs_str} site name validated as {obs_tag} observatory")
+            #print(f"{obs_str} site name validated as {obs_tag} observatory")
             self.OBS_tag = obs_tag
 
 
@@ -247,8 +331,13 @@ class ObsAtmoGrid:
 
         # load all data files (training and test)
         filename = os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["info"])
-        with open(filename, 'rb') as f:
-            self.info_params = pickle.load(f)
+        
+        #with open(filename, 'rb') as f:
+        #    self.info_params = pickle.load(f)
+
+        with open(filename, 'r') as f:
+            loaded_data_json = json.load(f)
+            self.info_params= convert_json_to_dict(loaded_data_json)
 
         data_rayleigh = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_rayleigh"]))
         data_O2abs = np.load(os.path.join(self.path, self.OBS_tag + "_" + file_data_dict["data_o2abs"]))
