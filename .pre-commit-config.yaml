@@ -37,3 +37,5 @@ repos:
     hooks:
       - id: nbstripout
         files: \.ipynb$
+        args: ["--keep-output"]
+        exclude: ^docs/source/notebooks/
