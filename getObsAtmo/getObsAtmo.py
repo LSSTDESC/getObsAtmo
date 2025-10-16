@@ -284,8 +284,7 @@ def is_obssite(obs_label):
 
     :return:  check if the observation site is in the predefined set of
     observation sites
-    :rtype: bool
-        True if the observation site is star has a table.
+    :rtype: bool True if the observation site is star has a table.
 
     Examples
     --------

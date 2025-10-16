@@ -8,6 +8,8 @@ numpydoc
 graphviz
 pydot
 # pour exécution des notebooks
+.[doc]
+ipykernel
 numpy
 matplotlib
 seaborn
