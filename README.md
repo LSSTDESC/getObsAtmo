@@ -1,5 +1,8 @@
 # getObsAtmo
 
+[![Build Status](https://github.com/LSSTDESC/getObsAtmo/actions/workflows/test.yml/badge.svg)](https://github.com/LSSTDESC/getObsAtmo/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/LSSTDESC/getObsAtmo/branch/main/graph/badge.svg)](https://codecov.io/gh/LSSTDESC/getObsAtmo)
+
 Python package to emulate atmospheric transparency simulation for different observation sites (version 0.2.0, October 2025).
 
 Transmission profiles depending on wavelength and airmass for Rayleigh scattering and atmospheric components absorption like Oxygen,

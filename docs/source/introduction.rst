@@ -18,11 +18,11 @@ Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
 
 
 
-============= ======== ========== =========== ========= =========== ========= 
-**Obs site**  **LSST**  **CTIO**    **OHP**    **PDM**   **OMK**     **OSL**  
+============= ======== ========== =========== ========= =========== =========
+**Obs site**  **LSST**  **CTIO**    **OHP**    **PDM**   **OMK**     **OSL**
 ------------- -------- ---------- ----------- --------- ----------- ---------
- pressure-hPa  731.5    774.6       937.2      710.9      600.2      1013.0 
- altitude-km   2.663    2.207       0.650      2.891      4.205         0.0 
+ pressure-hPa  731.5    774.6       937.2      710.9      600.2      1013.0
+ altitude-km   2.663    2.207       0.650      2.891      4.205         0.0
 ============= ======== ========== =========== ========= =========== =========
 
 The altitude-pressure dependence is shown on the figure below:
@@ -31,10 +31,10 @@ The altitude-pressure dependence is shown on the figure below:
     :width: 400
 
 
-If you don't find your observation site, choose the site having the closest altitude 
+If you don't find your observation site, choose the site having the closest altitude
 and provides the effective ground pressure.
 
-The transmissions will be pressure corrected for the corresponding ground pressure.         
+The transmissions will be pressure corrected for the corresponding ground pressure.
 
 
 
@@ -47,5 +47,3 @@ The following figure shows the atmospheric air transparency profiles provided by
 
 .. figure:: images/getObsAtmo.png
     :width: 800
-
-

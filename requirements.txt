@@ -10,4 +10,3 @@ numpydoc
 nbsphinx
 pydot
 graphviz
-

@@ -1,6 +1,6 @@
 Quickstart
 ==========
-      
+
 
 Installation
 ------------
@@ -10,13 +10,13 @@ Installation
    git clone https://github.com/LSSTDESC/getObsAtmo.git
    cd getObsAtmo
    pip install .
-   
-or 
+
+or
 
 .. code-block:: bash
-   
+
    cd getObsAtmo
-   pip install -e . 
+   pip install -e .
 
 if one want to install the documentation and examples notebooks.
 
@@ -36,7 +36,7 @@ from the web site http://www.libradtran.org/.
    :width: 400
 
 This emulator provides interpolations from atmospheric transmissions for scattering and absorption
-processes photon-air which are calculated by libradtran (version 2.0.5 for this current release).  
+processes photon-air which are calculated by libradtran (version 2.0.5 for this current release).
 
 
 Details
@@ -71,7 +71,7 @@ of transparencies.
 
       This is the base class which implement the interpolation of atmospheric transmissions from a series
       of dataset extracted from libradtran (http://www.libradtran.org/).
- 
+
 
 Usage
 -----
@@ -85,9 +85,9 @@ These are detailed in :doc:`apidocs`.
    >>> emul =  ObsAtmo()
    >>> # or
    >>> emul =  ObsAtmo('CTIO')
-   >>> # or 
+   >>> # or
    >>> emul =  ObsAtmo('LSST',743.0)
-   
+
    >>> wl = [400.,800.,900.] # define the wavelength array
    >>> am=1.2  # set the airmass
    >>> pwv =4.0  # set the precipitable water vapor in mm
@@ -99,4 +99,3 @@ Better example
 --------------
 
 .. _link: /Users/dagoret/MacOSX/GitHub/LSST/getObsAtmo/docs/notebooks/intro_notebook.ipynb
-

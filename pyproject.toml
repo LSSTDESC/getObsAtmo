@@ -35,7 +35,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["nose"]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+dev = ["tox",
+"pre-commit",
+"codecov"]
+
 doc = [
     "sphinx==7.1.2",
     "sphinx-rtd-theme==1.3.0rc1",
@@ -61,4 +69,3 @@ getObsAtmo = ["obsatmo_data/*.npy", "obsatmo_data/*.pickle", "obsatmo_data/*.jso
 
 [tool.setuptools.dynamic]
 version = { attr = "getObsAtmo._version.__version__" }
-
