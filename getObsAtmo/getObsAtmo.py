@@ -738,7 +738,9 @@ class ObsAtmoPressure(ObsAtmoGrid):
             self.pressure = self.refpressure
 
         self.Name = "Atmospheric emulator ObsAtmoPressure for "
-        +f"observation site {self.OBS_tag} P = {self.pressure} hPa"
+        self.Name = (
+            self.Name + f"observation site {self.OBS_tag} P = {self.pressure} hPa"
+        )
 
     def GetRayleighTransparencyArray(self, wl, am):
         """
