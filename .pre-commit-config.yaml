@@ -38,4 +38,4 @@ repos:
       - id: nbstripout
         files: \.ipynb$
         args: ["--keep-output"]
-        exclude: ^docs/source/notebooks/
+        exclude: ^docs/source/notebooks/.*

@@ -53,13 +53,22 @@ extensions = [
 ]
 
 
-nbsphinx_execute = "always"
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+}
+
+
+nbsphinx_execute = "never"
 nbsphinx_allow_errors = True
 source_suffix = [".rst"]
+nb_execution_mode = "off"
 
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "../../examples/notebooks/*"]
 
 
 # -- Options for HTML output -------------------------------------------------
