@@ -13,13 +13,15 @@
 import os
 import sys
 
-import getObsAtmo
+sys.path.insert(0, os.path.abspath("../.."))
+import getObsAtmo  # noqa: E402
 
-version = getObsAtmo.__version__
-release = getObsAtmo.__version__
+
+release = getObsAtmo._version.__version__  # version complète, ex: '0.2.1'
+version = ".".join(release.split(".")[:2])  # version courte, ex: '0.2'
+
 
 # sys.path.insert(0, os.path.abspath('../../getObsAtmo'))
-sys.path.insert(0, os.path.abspath("../.."))
 
 
 # -- Project information -----------------------------------------------------
@@ -28,7 +30,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 project = "getObsAtmo"
 copyright = "2025, Sylvie Dagoret-Campagne"
 author = "Sylvie Dagoret-Campagne"
-release = "0.2.0"
+# release = "0.2.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -47,10 +49,11 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
+    "myst_nb",
 ]
 
 
-nbsphinx_execute = "never"
+nbsphinx_execute = "always"
 nbsphinx_allow_errors = True
 source_suffix = [".rst"]
 

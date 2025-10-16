@@ -7,7 +7,11 @@
 Welcome to getObsAtmo's documentation!
 ======================================
 
-Version: |release|
+- Version: |version|
+
+
+- Release: |release|
+
 
 This is the documentation for the ``getObsAtmo``,
 the emulator for air transmission in visible wavelength range. This emulator aims  at providing
