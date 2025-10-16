@@ -225,7 +225,7 @@ def sanitizeString(label) -> str:
     return label.upper().replace(" ", "")
 
 
-def validateObsName(obssitename) -> str:
+def validateObsName(obssitename) -> str | None:
     """Validate if the obsite name is a valid observation site
 
     :param obssitename: observatory site name including a possible alias
@@ -239,7 +239,7 @@ def validateObsName(obssitename) -> str:
         sanit_listname = list(map(lambda x: sanitizeString(x), listnames))
         if sitename in sanit_listname or sitename == key_site:
             return key_site
-    return ""
+    return None
 
 
 def get_obssite_keys(obs_label):
