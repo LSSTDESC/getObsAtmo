@@ -1,0 +1,2 @@
+# Empêcher nbstripout de toucher aux notebooks de documentation
+docs/source/notebooks/*.ipynb filter=nbstripout-off

@@ -2,9 +2,9 @@ name: Test getObsAtmo
 
 on:
   push:
-    branches: [main, master, develop, 43-add-github-actions]
+    branches: [main, master]
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, master]
 
 jobs:
   build-and-test:

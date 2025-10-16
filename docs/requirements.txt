@@ -1,18 +1,28 @@
+# Core Sphinx
 sphinx>=7.0
-myst-nb #or nbsphinx
-#nbsphinx
 sphinx-rtd-theme
 sphinx-tabs
 numpydoc
 
+# Notebooks
+# myst-nb
+# ou, si tu préfères nbsphinx, remplace la ligne ci-dessus par :
+nbsphinx
+
+# Graphviz for diagrams
 graphviz
 pydot
-# pour exécution des notebooks
-.[doc]
-ipykernel
+
+# Dependencies of your project (for autodoc)
 numpy
 matplotlib
 seaborn
 scipy
 pandas
+
+# Jupyter-related packages (for notebook parsing, but not execution)
 nbconvert
+ipykernel
+
+# Optional: your package’s documentation extras
+.[doc]
