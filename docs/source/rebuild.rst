@@ -1,6 +1,6 @@
 Rebuilding parameter grid
 =========================
-      
+
 
 The atmospheric parameters - transmission grid may be regenerated
 by using the python script ``rebuildGrid.py``.
@@ -16,7 +16,7 @@ Theses grids consist in a set of 5 files 1 set per pre-defined observation site.
 Requirements for rebuildGrid
 ----------------------------
 
-Runnning ``rebuildGrid.py`` requires the installation of ``libRadtran`` 
+Runnning ``rebuildGrid.py`` requires the installation of ``libRadtran``
 and ``libradtranpy``.
 
 Documentation to install those packages can be found at:
@@ -50,5 +50,3 @@ In a shell :
 |	 Arguments actually provided :
 |	 	 Number of arguments: 2 arguments.
 |	 	 Argument List: ['rebuildGrids.py', '-h']
-
-

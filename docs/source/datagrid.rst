@@ -1,6 +1,6 @@
-Data grid and Interpolation 
+Data grid and Interpolation
 ============================
-      
+
 
 The atmospheric transparencies were sampled from libradtran according a regular grid
 in wavelength, airmass, precipitable water vapor and Ozone.
@@ -11,11 +11,11 @@ independently to reduce the dimension of the grid sampling.
 
 The different following interaction processes sampled according a grid:
 
-* the Rayleigh scattering, 
+* the Rayleigh scattering,
 
-* the Oxygen absorption process, 
+* the Oxygen absorption process,
 
-* the Precipitable water vapor (pwv) absorption process, 
+* the Precipitable water vapor (pwv) absorption process,
 
 * the Ozone (oz) absorption process,
 
@@ -23,14 +23,14 @@ The base class ``ObsAtmoGrid`` implements the interpolation functions which are
 accessible to the user end-point or user interface class ``ObsAtmo``.
 
 
-==================== ============ ===================== ========================================= 
-**Interac process**  **grid-dim**  **data grid params**       **interpolation function**  
--------------------- ------------ --------------------- ----------------------------------------- 
+==================== ============ ===================== =========================================
+**Interac process**  **grid-dim**  **data grid params**       **interpolation function**
+-------------------- ------------ --------------------- -----------------------------------------
  Rayleigh scattering     2D          (wl,airmass)       ``ObsAtmo.GetRayleighTransparencyArray``
  O2 absorption           2D          (wl,airmass)       ``ObsAtmo.GetO2absTransparencyArray``
  PWV absortion           3D        (wl,airmass,pwv)     ``ObsAtmo.GetPWVabsTransparencyArray``
  OZ absorption           3D        (wl,airmass,oz)      ``ObsAtmo.GetOZabsTransparencyArray``
-==================== ============ ===================== ========================================= 
+==================== ============ ===================== =========================================
 
 *where wl means wavelength*.
 
@@ -45,9 +45,9 @@ check:
    >>> emul =  ObsAtmo()
    >>> # or
    >>> emul =  ObsAtmo('CTIO')
-   >>> # or 
+   >>> # or
    >>> emul =  ObsAtmo('LSST',743.0)
-   
+
    >>> # check the wavelength range
 
    >>> emul.WL[0:10]
@@ -65,7 +65,7 @@ check:
    array([1. , 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2. , 2.1, 2.2,
        2.3, 2.4, 2.5])
 
-   >>> # check the pwv range    
+   >>> # check the pwv range
    >>> emul.PWV
    array([ 0.  ,  0.25,  0.5 ,  0.75,  1.  ,  1.25,  1.5 ,  1.75,  2.  ,
         2.25,  2.5 ,  2.75,  3.  ,  3.25,  3.5 ,  3.75,  4.  ,  4.25,
@@ -82,4 +82,3 @@ check:
 
 Depending on the version of this ``getObsAtmo`` package, those grid size and sampling may depends
 on the observation site.
-
