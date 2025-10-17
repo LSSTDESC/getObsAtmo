@@ -1,4 +1,5 @@
 # last update 2025-10-15 : use json instead of pickle
+# last update 2025-10-17 : add Dict_Of_sitesMoleculesNDensity and Dict_Of_sitesAirWeight
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
@@ -14,6 +15,8 @@ from typing import Any, Dict, Optional
 __all__ = [
     "Dict_Of_sitesAltitudes",
     "Dict_Of_sitesPressures",
+    "Dict_Of_sitesMoleculesNDensity",
+    "Dict_Of_sitesAirWeight",
     "Dict_Of_sitesAliases",
     "file_data_dict",
     "_getPackageDir",
@@ -27,7 +30,7 @@ __all__ = [
 ]
 
 
-# preselected sites
+# preselected sites with their known altitude in km
 Dict_Of_sitesAltitudes = {
     "LSST": 2.663,  # Rubin-LSST
     "CTIO": 2.207,  # Cerro Tololo Inter-American Observatory
@@ -49,6 +52,32 @@ Dict_Of_sitesPressures = {
     "OMK": 600.17224,
     "OSL": 1013.000,
 }
+
+
+# air molecule density at ground per cm3 caclulated by libradtran
+Dict_Of_sitesMoleculesNDensity = {
+    "LSST": 1.95597e19,
+    "CTIO": 2.04877e19,
+    "OHP": 2.39057e19,
+    "ZTF": 2.15308e19,
+    "VLT": 1.96155e19,
+    "PDM": 1.91126e19,
+    "OMK": 1.66644e19,
+    "OSL": 2.54582e19,
+}
+
+# in grams per cm2 at ground cal
+Dict_Of_sitesAirWeight = {
+    "LSST": 1.6e25,
+    "CTIO": 1.6e25,
+    "OHP": 2.0e25,
+    "ZTF": 1.8e25,
+    "VLT": 1.6e25,
+    "PDM": 1.5e25,
+    "OMK": 1.3e25,
+    "OSL": 2.2e25,
+}
+
 
 Dict_Of_sitesTags = {
     "LSST": "LS",

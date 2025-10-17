@@ -24,20 +24,20 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Astronomy"
 ]
 dependencies = [
     "numpy",
     "matplotlib",
     "seaborn",
     "scipy",
-    "pandas",
+    "pandas"
 ]
 
 [project.optional-dependencies]
 test = [
     "pytest",
-    "pytest-cov",
+    "pytest-cov"
 ]
 
 dev = ["tox",
@@ -52,7 +52,7 @@ doc = [
     "myst-nb",
     "nbsphinx",
     "pydot",
-    "graphviz",
+    "graphviz"
 ]
 
 [project.urls]
@@ -62,7 +62,8 @@ Repository = "https://github.com/LSSTDESC/getObsAtmo.git"
 
 [tool.setuptools]
 package-dir = { "" = "." }
-packages = ["getObsAtmo"]
+packages = ["getObsAtmo","atmanalyticalmodels"]
+
 
 
 [tool.setuptools.package-data]

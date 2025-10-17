@@ -5,6 +5,8 @@ from ._version import __version__
 from .getObsAtmo import (
     Dict_Of_sitesAltitudes,
     Dict_Of_sitesPressures,
+    Dict_Of_sitesMoleculesNDensity,
+    Dict_Of_sitesAirWeight,
     Dict_Of_sitesAliases,
     file_data_dict,
     _getPackageDir,
@@ -23,6 +25,8 @@ __all__ = [
     "__version__",
     "Dict_Of_sitesAltitudes",
     "Dict_Of_sitesPressures",
+    "Dict_Of_sitesMoleculesNDensity",
+    "Dict_Of_sitesAirWeight",
     "Dict_Of_sitesAliases",
     "file_data_dict",
     "_getPackageDir",
