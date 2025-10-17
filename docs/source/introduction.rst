@@ -27,7 +27,7 @@ Transmission pattern for 5 observation sites are proposed: ``LSST``, ``CTIO``,
 
 The altitude-pressure dependence is shown on the figure below:
 
-.. figure:: images/libradtranpy_altitudevspressure.png
+.. figure:: images/getobsatmo_altitudevspressure.png
     :width: 400
 
 

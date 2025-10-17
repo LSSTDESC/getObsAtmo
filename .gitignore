@@ -5,3 +5,6 @@
 *DS_Store*
 _*_pycache_*
 *make.bat*
+*.png
+*.json
+*.npy
