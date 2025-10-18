@@ -1,17 +1,19 @@
-# python -m unittest
-# python -m unittest -v
-
 import unittest
-from getObsAtmo import (
-    Dict_Of_sitesAltitudes,
-    # Dict_Of_sitesAliases,
-    # Dict_Of_sitesPressures,
-)
-from getObsAtmo import file_data_dict
-from getObsAtmo import _getPackageDir, sanitizeString, validateObsName, is_obssite
-from getObsAtmo import ObsAtmo, ObsAtmoPressure, ObsAtmoGrid
 import numpy as np
 import os
+from getObsAtmo import (
+    Dict_Of_sitesAltitudes,
+    file_data_dict,
+    _getPackageDir,
+    sanitizeString,
+    validateObsName,
+    is_obssite,
+    ObsAtmo,
+    ObsAtmoPressure,
+    ObsAtmoGrid,
+    convert_dict_to_json,
+    convert_json_to_dict,
+)
 
 
 class GetObsAtmoTestCase(unittest.TestCase):
@@ -20,7 +22,6 @@ class GetObsAtmoTestCase(unittest.TestCase):
     def test_packagedir(self):
         """Test if the installation dir and data dir exists"""
         installationdir = _getPackageDir()
-        # construct the path of input data files
         datapath = os.path.join(installationdir, "obsatmo_data")
 
         self.assertTrue(os.path.exists(datapath))
@@ -137,6 +138,58 @@ class GetObsAtmoTestCase(unittest.TestCase):
             ),
             msg="ObsAtmo.GetAllTransparencies error",
         )
+
+
+# -------------------------------------------------------------------
+# Special Tests for convert_dict_to_json and convert_json_to_dict
+# -------------------------------------------------------------------
+
+
+class TestConvertFunctions(unittest.TestCase):
+    """Tests for convert_dict_to_json and convert_json_to_dict"""
+
+    def test_convert_dict_to_json_with_numpy_array(self):
+        data = {"array": np.array([1, 2, 3]), "value": 42}
+        result = convert_dict_to_json(data)
+        self.assertEqual(result, {"array": [1, 2, 3], "value": 42})
+
+    def test_convert_dict_to_json_with_scalars(self):
+        data = {"int": 5, "float": 3.14, "str": "hello", "bool": True, "none": None}
+        result = convert_dict_to_json(data)
+        self.assertEqual(result, data)
+
+    def test_convert_dict_to_json_invalid_type(self):
+        data = {"unsupported": set([1, 2, 3])}
+        with self.assertRaises(TypeError):
+            convert_dict_to_json(data)
+
+    def test_convert_dict_to_json_invalid_input(self):
+        with self.assertRaises(TypeError):
+            convert_dict_to_json(["not", "a", "dict"])
+
+    def test_convert_json_to_dict_with_list(self):
+        data_json = {"array": [1, 2, 3], "value": 42}
+        result = convert_json_to_dict(data_json)
+        self.assertTrue(np.array_equal(result["array"], np.array([1, 2, 3])))
+        self.assertEqual(result["value"], 42)
+
+    def test_convert_json_to_dict_with_nonlist_values(self):
+        data_json = {"a": 1, "b": "test", "c": None}
+        result = convert_json_to_dict(data_json)
+        self.assertEqual(result, data_json)
+
+    def test_convert_json_to_dict_invalid_input(self):
+        with self.assertRaises(TypeError):
+            convert_json_to_dict("not a dict")
+
+    def test_round_trip_conversion(self):
+        """Test that converting dict -> json -> dict preserves data"""
+        original = {"arr": np.arange(4), "val": 7.5, "txt": "ok"}
+        json_data = convert_dict_to_json(original)
+        recovered = convert_json_to_dict(json_data)
+        self.assertTrue(np.array_equal(recovered["arr"], original["arr"]))
+        self.assertEqual(recovered["val"], original["val"])
+        self.assertEqual(recovered["txt"], original["txt"])
 
 
 if __name__ == "__main__":
